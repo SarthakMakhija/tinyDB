@@ -29,4 +29,4 @@ It will support the following:
 - [ ] Support for SELECT query by the primary key 
 - [ ] Support for SELECT query by the secondary key 
 - [ ] Support for SELECT query by non-key columns
-- [ ] Query parsing: CREATE TABLE, INSERT INTO, SELECT
+- [ ] Query parsing using [goyacc](https://pkg.go.dev/golang.org/x/tools/cmd/goyacc): CREATE TABLE, INSERT INTO, SELECT
