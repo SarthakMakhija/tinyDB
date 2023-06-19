@@ -8,7 +8,7 @@ Tiny relational DB implementation over an LSM tree based storage engine
 The idea is to provide a relational database implementation over an LSM tree based storage engine. The implementation will be used alongside my [storage engine workshop](https://github.com/SarthakMakhija/storage-engine-workshop-template).
 It will support the following:
 
-**LSM tree: KV Storage engine**
+**LSM tree based KV Storage engine**
 
 - [ ] Persistence
 - [ ] Support for `put(key, value)`
