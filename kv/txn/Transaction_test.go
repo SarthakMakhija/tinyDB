@@ -9,7 +9,8 @@ import (
 )
 
 func TestGetsANonExistingKeyInAReadonlyTransaction(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
 
 	transaction := NewReadonlyTransaction(NewOracle(NewTransactionExecutor(memTable)))
 	_, ok := transaction.Get([]byte("non-existing"))
@@ -18,8 +19,10 @@ func TestGetsANonExistingKeyInAReadonlyTransaction(t *testing.T) {
 }
 
 func TestGetsAnExistingKeyInAReadonlyTransaction(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
-	memTable.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk")))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
+	_ = memTable.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk")))
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 	oracle.nextTimestamp = 3
@@ -34,7 +37,8 @@ func TestGetsAnExistingKeyInAReadonlyTransaction(t *testing.T) {
 }
 
 func TestCommitsAnEmptyReadWriteTransaction(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 	oracle.commitTimestampMark.Finish(2)
@@ -48,7 +52,8 @@ func TestCommitsAnEmptyReadWriteTransaction(t *testing.T) {
 }
 
 func TestAttemptsToPutDuplicateKeysInATransaction(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 	oracle.commitTimestampMark.Finish(2)
@@ -63,7 +68,9 @@ func TestAttemptsToPutDuplicateKeysInATransaction(t *testing.T) {
 }
 
 func TestGetsAnExistingKeyInAReadWriteTransaction(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	transaction := NewReadWriteTransaction(oracle)
@@ -90,7 +97,8 @@ func TestGetsAnExistingKeyInAReadWriteTransaction(t *testing.T) {
 }
 
 func TestGetsTheValueFromAKeyInAReadWriteTransactionFromBatch(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
 
 	transaction := NewReadWriteTransaction(NewOracle(NewTransactionExecutor(memTable)))
 	_ = transaction.PutOrUpdate([]byte("HDD"), []byte("Hard disk"))
@@ -104,7 +112,8 @@ func TestGetsTheValueFromAKeyInAReadWriteTransactionFromBatch(t *testing.T) {
 }
 
 func TestTracksReadsInAReadWriteTransaction(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
 
 	transaction := NewReadWriteTransaction(NewOracle(NewTransactionExecutor(memTable)))
 	_ = transaction.PutOrUpdate([]byte("HDD"), []byte("Hard disk"))
@@ -120,7 +129,8 @@ func TestTracksReadsInAReadWriteTransaction(t *testing.T) {
 }
 
 func TestDoesNotTrackReadsInAReadWriteTransactionIfKeysAreReadFromTheBatch(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
 
 	transaction := NewReadWriteTransaction(NewOracle(NewTransactionExecutor(memTable)))
 	_ = transaction.PutOrUpdate([]byte("HDD"), []byte("Hard disk"))

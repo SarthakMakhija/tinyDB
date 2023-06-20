@@ -1,7 +1,7 @@
 package log
 
 import (
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 )
@@ -15,8 +15,8 @@ func TestHeaderEncodeAndDecode(t *testing.T) {
 
 	decodedHeader := new(Header)
 	_ = decodedHeader.decodeFrom(strings.NewReader(string(encodedHeader)))
-	require.Equal(t, uint32(5), decodedHeader.keyLength)
-	require.Equal(t, uint32(15), decodedHeader.valueLength)
+	assert.Equal(t, uint32(5), decodedHeader.keyLength)
+	assert.Equal(t, uint32(15), decodedHeader.valueLength)
 }
 
 func TestHeaderEncodeAndDecodeWithError(t *testing.T) {
@@ -28,7 +28,7 @@ func TestHeaderEncodeAndDecodeWithError(t *testing.T) {
 
 	decodedHeader := new(Header)
 	err := decodedHeader.decodeFrom(strings.NewReader(string(encodedHeader[0:2])))
-	require.Error(t, err)
+	assert.Error(t, err)
 }
 
 func TestEntryEncodeAndDecode(t *testing.T) {
@@ -42,8 +42,8 @@ func TestEntryEncodeAndDecode(t *testing.T) {
 	_ = decodedHeader.decodeFrom(reader)
 	_ = decodedEntry.decodeFrom(decodedHeader, reader)
 
-	require.Equal(t, "storage", string(decodedEntry.key))
-	require.Equal(t, "LSM", string(decodedEntry.value))
+	assert.Equal(t, "storage", string(decodedEntry.key))
+	assert.Equal(t, "LSM", string(decodedEntry.value))
 }
 
 func TestEntryEncodeAndDecodeWithError(t *testing.T) {
@@ -57,5 +57,5 @@ func TestEntryEncodeAndDecodeWithError(t *testing.T) {
 	_ = decodedHeader.decodeFrom(reader)
 	err := decodedEntry.decodeFrom(decodedHeader, reader)
 
-	require.Error(t, err)
+	assert.Error(t, err)
 }

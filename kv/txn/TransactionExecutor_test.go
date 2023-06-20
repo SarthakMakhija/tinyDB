@@ -8,7 +8,9 @@ import (
 )
 
 func TestExecutesABatch(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
 	executor := NewTransactionExecutor(memTable)
 
 	batch := NewBatch()
@@ -29,14 +31,16 @@ func TestExecutesABatch(t *testing.T) {
 }
 
 func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
 	executor := NewTransactionExecutor(memTable)
 
 	batch := NewBatch()
 	_ = batch.Add([]byte("HDD"), []byte("Hard disk"))
 
 	commitCallback := func() {
-		memTable.PutOrUpdate(mvcc.NewVersionedKey([]byte("commit"), 1), mvcc.NewValue([]byte("applied")))
+		_ = memTable.PutOrUpdate(mvcc.NewVersionedKey([]byte("commit"), 1), mvcc.NewValue([]byte("applied")))
 	}
 	doneChannel := executor.Submit(batch.ToTimestampedBatch(1, commitCallback))
 	<-doneChannel
@@ -51,7 +55,9 @@ func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
 }
 
 func TestExecutes2Batches(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
 	executor := NewTransactionExecutor(memTable)
 
 	batch := NewBatch()
@@ -88,7 +94,9 @@ func TestExecutes2Batches(t *testing.T) {
 }
 
 func TestExecutesABatchAndStops(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
 	executor := NewTransactionExecutor(memTable)
 
 	batch := NewBatch()

@@ -2,7 +2,11 @@ package mvcc
 
 import (
 	"bytes"
+	"encoding/binary"
+	"unsafe"
 )
+
+const versionSize = int(unsafe.Sizeof(uint64(0)))
 
 // VersionedKey represents a key with a version.
 // Versioned is used as a key inside Skiplist based memtable which acts as an in-memory store.
@@ -60,4 +64,22 @@ func (versionedKey VersionedKey) matchesKeyPrefix(key []byte) bool {
 // asString returns the string of the key part.
 func (versionedKey VersionedKey) asString() string {
 	return string(versionedKey.key)
+}
+
+// encode the VersionedKey
+// Encoding scheme: [<Key>|<Version 8 bytes>] in a byte slice.
+func (versionedKey VersionedKey) encode() []byte {
+	encoded := make([]byte, len(versionedKey.key)+versionSize)
+	binary.LittleEndian.PutUint64(encoded[:], versionedKey.version)
+	copy(encoded[versionSize:], versionedKey.key)
+	return encoded
+}
+
+// decode the incoming byte slice and mutate the versionedKey with version and the key.
+func (versionedKey *VersionedKey) decode(part []byte) {
+	version := binary.LittleEndian.Uint64(part)
+	key := part[versionSize:]
+
+	versionedKey.version = version
+	versionedKey.key = key
 }

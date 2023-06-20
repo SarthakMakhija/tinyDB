@@ -1,15 +1,14 @@
 package log
 
 import (
-	"github.com/stretchr/testify/require"
-	"os"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestWalWithSingleEntry(t *testing.T) {
 	wal, _ := NewWAL(1, ".")
 	defer func() {
-		_ = os.RemoveAll(wal.writableFileHandle.Name())
+		wal.Remove()
 	}()
 	defer func() {
 		_ = wal.readableFileHandle.Close()
@@ -27,16 +26,16 @@ func TestWalWithSingleEntry(t *testing.T) {
 	for key, value := range expected {
 		entry, err := iterator.Next()
 
-		require.Nil(t, err)
-		require.Equal(t, key, string(entry.key))
-		require.Equal(t, value, string(entry.value))
+		assert.Nil(t, err)
+		assert.Equal(t, key, string(entry.key))
+		assert.Equal(t, value, string(entry.value))
 	}
 }
 
 func TestWalWithMultipleEntries(t *testing.T) {
 	wal, _ := NewWAL(10, ".")
 	defer func() {
-		_ = os.RemoveAll(wal.writableFileHandle.Name())
+		wal.Remove()
 	}()
 	defer func() {
 		_ = wal.readableFileHandle.Close()
@@ -60,8 +59,8 @@ func TestWalWithMultipleEntries(t *testing.T) {
 	for _, key := range keys {
 		entry, err := iterator.Next()
 
-		require.Nil(t, err)
-		require.Equal(t, key, string(entry.key))
-		require.Equal(t, expected[key], string(entry.value))
+		assert.Nil(t, err)
+		assert.Equal(t, key, string(entry.key))
+		assert.Equal(t, expected[key], string(entry.value))
 	}
 }

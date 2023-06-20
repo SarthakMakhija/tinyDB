@@ -56,3 +56,13 @@ func TestDoesNotMatchKeyPrefix(t *testing.T) {
 	otherVersionedKey := NewVersionedKey([]byte("HDD"), 1)
 	assert.Equal(t, false, versionedKey.matchesKeyPrefix(otherVersionedKey.getKey()))
 }
+
+func TestEncodeAndDecodeTheVersionedKey(t *testing.T) {
+	versionedKey := NewVersionedKey([]byte("storage"), 1)
+	encoded := versionedKey.encode()
+
+	decoded := new(VersionedKey)
+	decoded.decode(encoded)
+
+	assert.Equal(t, "storage", decoded.asString())
+}

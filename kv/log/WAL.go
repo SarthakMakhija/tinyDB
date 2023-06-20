@@ -43,6 +43,14 @@ func (wal *WAL) Write(entry *Entry) error {
 	return nil
 }
 
+func (wal *WAL) Remove() {
+	err := os.RemoveAll(wal.writableFileHandle.Name())
+	if err != nil {
+		//TODO: Removes println in favor of logging
+		println("error while closing WAL file ", wal.writableFileHandle.Name())
+	}
+}
+
 func (wal *WAL) Iterator() *WalIterator {
 	return &WalIterator{reader: NewBufferedReader(wal.readableFileHandle)}
 }

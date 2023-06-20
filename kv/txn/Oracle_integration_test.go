@@ -2,14 +2,21 @@ package txn
 
 import (
 	"github.com/stretchr/testify/assert"
+	"math/rand"
 	"testing"
 	"time"
 	"tinydb/kv"
 	"tinydb/kv/mvcc"
 )
 
+func RandomWALFileId() uint64 {
+	return rand.Uint64()
+}
+
 func TestBeginTimestampMarkWithASingleTransaction(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	beginMark := oracle.beginTimestampMark
@@ -28,7 +35,9 @@ func TestBeginTimestampMarkWithASingleTransaction(t *testing.T) {
 }
 
 func TestBeginTimestampMarkWithTwoTransactions(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	beginMark := oracle.beginTimestampMark
@@ -51,7 +60,9 @@ func TestBeginTimestampMarkWithTwoTransactions(t *testing.T) {
 }
 
 func TestCleanUpOfCommittedTransactions(t *testing.T) {
-	memTable := mvcc.NewMemTable(kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	beginMark := oracle.beginTimestampMark
