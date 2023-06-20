@@ -6,9 +6,8 @@ import (
 )
 
 type WAL struct {
-	writableFileHandle    *os.File
-	readableFileHandle    *os.File
-	currentWritableOffset int64
+	writableFileHandle *os.File
+	readableFileHandle *os.File
 }
 
 func NewWAL(fileId uint64, directory string) (*WAL, error) {
@@ -17,7 +16,7 @@ func NewWAL(fileId uint64, directory string) (*WAL, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &WAL{writableFileHandle: file, currentWritableOffset: 0}, nil
+	return &WAL{writableFileHandle: file}, nil
 }
 
 func NewReadonlyWAL(fileId uint64, directory string) (*WAL, error) {
@@ -41,7 +40,6 @@ func (wal *WAL) Write(entry *Entry) error {
 	if bytesWritten < len(encodedEntry) {
 		return fmt.Errorf("could not append %v bytes to the WAL", len(encodedEntry))
 	}
-	//wal.currentWritableOffset = wal.currentWritableOffset + int64(bytesWritten)
 	return nil
 }
 
