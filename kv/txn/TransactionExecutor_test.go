@@ -3,11 +3,12 @@ package txn
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"tinydb/kv"
 	"tinydb/kv/mvcc"
 )
 
 func TestExecutesABatch(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	executor := NewTransactionExecutor(memTable)
 
 	batch := NewBatch()
@@ -28,7 +29,7 @@ func TestExecutesABatch(t *testing.T) {
 }
 
 func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	executor := NewTransactionExecutor(memTable)
 
 	batch := NewBatch()
@@ -50,7 +51,7 @@ func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
 }
 
 func TestExecutes2Batches(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	executor := NewTransactionExecutor(memTable)
 
 	batch := NewBatch()
@@ -87,7 +88,7 @@ func TestExecutes2Batches(t *testing.T) {
 }
 
 func TestExecutesABatchAndStops(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	executor := NewTransactionExecutor(memTable)
 
 	batch := NewBatch()

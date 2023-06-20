@@ -3,18 +3,19 @@ package txn
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"tinydb/kv"
 	"tinydb/kv/mvcc"
 	"tinydb/kv/txn/errors"
 )
 
 func TestGetsTheBeginTimestamp(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 	assert.Equal(t, uint64(0), oracle.beginTimestamp())
 }
 
 func TestGetsTheBeginTimestampAfterACommit(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	transaction := NewReadWriteTransaction(oracle)
@@ -28,7 +29,7 @@ func TestGetsTheBeginTimestampAfterACommit(t *testing.T) {
 }
 
 func TestGetsCommitTimestampForTransactionGivenNoTransactionsAreCurrentlyTracked(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	transaction := NewReadWriteTransaction(oracle)
@@ -39,7 +40,7 @@ func TestGetsCommitTimestampForTransactionGivenNoTransactionsAreCurrentlyTracked
 }
 
 func TestGetsCommitTimestampFor2Transactions(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	aTransaction := NewReadWriteTransaction(oracle)
@@ -60,7 +61,7 @@ func TestGetsCommitTimestampFor2Transactions(t *testing.T) {
 }
 
 func TestGetsCommitTimestampFor2TransactionsGivenOneTransactionReadTheKeyThatTheOtherWrites(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	aTransaction := NewReadWriteTransaction(oracle)
@@ -82,7 +83,7 @@ func TestGetsCommitTimestampFor2TransactionsGivenOneTransactionReadTheKeyThatThe
 }
 
 func TestErrorsForOneTransaction(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	aTransaction := NewReadWriteTransaction(oracle)

@@ -2,8 +2,11 @@ package mvcc
 
 import (
 	"sync"
+	"tinydb/kv"
 	"tinydb/kv/mvcc/utils"
 )
+
+const MaxHeight = 20
 
 // MemTable is an in-memory structure built on top of SkipList.
 type MemTable struct {
@@ -13,10 +16,10 @@ type MemTable struct {
 }
 
 // NewMemTable creates a new instance of MemTable.
-func NewMemTable(maxLevel uint8) *MemTable {
+func NewMemTable(options *kv.Options) *MemTable {
 	return &MemTable{
-		head:           newSkiplistNode(emptyVersionedKey(), emptyValue(), maxLevel),
-		levelGenerator: utils.NewLevelGenerator(maxLevel),
+		head:           newSkiplistNode(emptyVersionedKey(), emptyValue(), MaxHeight),
+		levelGenerator: utils.NewLevelGenerator(MaxHeight),
 	}
 }
 

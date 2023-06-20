@@ -4,11 +4,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+	"tinydb/kv"
 	"tinydb/kv/mvcc"
 )
 
 func TestBeginTimestampMarkWithASingleTransaction(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	beginMark := oracle.beginTimestampMark
@@ -27,7 +28,7 @@ func TestBeginTimestampMarkWithASingleTransaction(t *testing.T) {
 }
 
 func TestBeginTimestampMarkWithTwoTransactions(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	beginMark := oracle.beginTimestampMark
@@ -50,7 +51,7 @@ func TestBeginTimestampMarkWithTwoTransactions(t *testing.T) {
 }
 
 func TestCleanUpOfCommittedTransactions(t *testing.T) {
-	memTable := mvcc.NewMemTable(10)
+	memTable := mvcc.NewMemTable(kv.DefaultOptions())
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 
 	beginMark := oracle.beginTimestampMark
