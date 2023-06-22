@@ -1,8 +1,49 @@
 package mvcc
 
 import (
+	"sync"
 	"tinydb/kv/mvcc/utils"
 )
+
+const MaxHeight = 20
+
+type Skiplist struct {
+	lock           sync.RWMutex
+	head           *SkiplistNode
+	levelGenerator utils.LevelGenerator
+}
+
+func newSkiplist() *Skiplist {
+	return &Skiplist{
+		head:           newSkiplistNode(emptyVersionedKey(), emptyValue(), MaxHeight),
+		levelGenerator: utils.NewLevelGenerator(MaxHeight),
+	}
+}
+
+// PutOrUpdate puts or updates the key and the value pair in the SkipList.
+func (skiplist *Skiplist) putOrUpdate(key VersionedKey, value Value) {
+	skiplist.lock.Lock()
+	defer skiplist.lock.Unlock()
+
+	skiplist.head.putOrUpdate(key, value, skiplist.levelGenerator)
+}
+
+// Get returns a pair of (Value, bool) for the incoming key.
+// It returns (Value, true) if the value exists for the incoming key, else (nil, false).
+func (skiplist *Skiplist) get(key VersionedKey) (Value, bool) {
+	skiplist.lock.RLock()
+	defer skiplist.lock.RUnlock()
+
+	return skiplist.head.get(key)
+}
+
+// iterator returns an Iterator that allows forward movement in the Skiplist
+func (skiplist *Skiplist) iterator() *Iterator {
+	return &Iterator{
+		skiplist: skiplist,
+		node:     skiplist.head,
+	}
+}
 
 // SkiplistNode represents a node in the SkipList.
 // Each node contains the key/value pair and an array of forward pointers.
@@ -65,13 +106,6 @@ func (node *SkiplistNode) get(key VersionedKey) (Value, bool) {
 	return emptyValue(), false
 }
 
-// iterator returns an Iterator that allows forward movement in the Skiplist
-func (node *SkiplistNode) iterator() *Iterator {
-	return &Iterator{
-		node: node,
-	}
-}
-
 func (node *SkiplistNode) matchingNode(key VersionedKey) (*SkiplistNode, bool) {
 	current := node
 	lastNodeWithTheKey := current
@@ -92,11 +126,15 @@ func (node *SkiplistNode) matchingNode(key VersionedKey) (*SkiplistNode, bool) {
 
 // Iterator allows forward movement in the Skiplist
 type Iterator struct {
-	node *SkiplistNode
+	skiplist *Skiplist
+	node     *SkiplistNode
 }
 
 // seek to a node such that node.key >= key
 func (iterator *Iterator) seek(key VersionedKey) {
+	iterator.skiplist.lock.RLock()
+	defer iterator.skiplist.lock.RUnlock()
+
 	current := iterator.node
 	for level := len(iterator.node.forwards) - 1; level >= 0; level-- {
 		for current.forwards[level] != nil && current.forwards[level].key.compare(key) <= 0 {
@@ -128,6 +166,9 @@ func (iterator *Iterator) value() Value {
 // No nil check is done on the iterator node. It is the responsibility of the callee to ensure next is only called if the
 // Iterator is valid
 func (iterator *Iterator) next() {
+	iterator.skiplist.lock.RLock()
+	defer iterator.skiplist.lock.RUnlock()
+
 	current := iterator.node
 	current = current.forwards[0]
 	iterator.node = current
