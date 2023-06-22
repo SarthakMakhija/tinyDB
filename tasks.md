@@ -7,6 +7,8 @@
 - [ ] Close the WAL (segment) when the memtable is full
 
 ## Support for iterator
+- [X] Iterator for Skiplist
+
 ## Prefix based get/seek
 ## Flush memtable to disk
 ## Creation of SSTable
