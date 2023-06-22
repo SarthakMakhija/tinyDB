@@ -37,6 +37,8 @@ func (node *SkiplistNode) putOrUpdate(key VersionedKey, value Value, levelGenera
 	}
 
 	current = current.forwards[0]
+
+	//same version of the key must not be present
 	if current == nil || current.key.compare(key) != 0 {
 		newLevel := levelGenerator.Generate()
 		newNode := newSkiplistNode(key, value, newLevel)
@@ -63,6 +65,13 @@ func (node *SkiplistNode) get(key VersionedKey) (Value, bool) {
 	return emptyValue(), false
 }
 
+// iterator returns an Iterator that allows forward movement in the Skiplist
+func (node *SkiplistNode) iterator() *Iterator {
+	return &Iterator{
+		node: node,
+	}
+}
+
 func (node *SkiplistNode) matchingNode(key VersionedKey) (*SkiplistNode, bool) {
 	current := node
 	lastNodeWithTheKey := current
@@ -79,4 +88,47 @@ func (node *SkiplistNode) matchingNode(key VersionedKey) (*SkiplistNode, bool) {
 		return lastNodeWithTheKey, true
 	}
 	return nil, false
+}
+
+// Iterator allows forward movement in the Skiplist
+type Iterator struct {
+	node *SkiplistNode
+}
+
+// seek to a node such that node.key >= key
+func (iterator *Iterator) seek(key VersionedKey) {
+	current := iterator.node
+	for level := len(iterator.node.forwards) - 1; level >= 0; level-- {
+		for current.forwards[level] != nil && current.forwards[level].key.compare(key) <= 0 {
+			current = current.forwards[level]
+		}
+	}
+	if current.key.compare(key) < 0 {
+		current = current.forwards[0]
+	}
+	iterator.node = current
+}
+
+// isValid returns true if the current iterator node is not nil, false otherwise
+func (iterator *Iterator) isValid() bool {
+	return iterator.node != nil
+}
+
+// key returns the key present in the current node pointed to by the Iterator
+func (iterator *Iterator) key() VersionedKey {
+	return iterator.node.key
+}
+
+// value returns the value present in the current node pointed to by the Iterator
+func (iterator *Iterator) value() Value {
+	return iterator.node.value
+}
+
+// next moves the iterator forward. It is ESSENTIAL to call isValid() before calling next.
+// No nil check is done on the iterator node. It is the responsibility of the callee to ensure next is only called if the
+// Iterator is valid
+func (iterator *Iterator) next() {
+	current := iterator.node
+	current = current.forwards[0]
+	iterator.node = current
 }

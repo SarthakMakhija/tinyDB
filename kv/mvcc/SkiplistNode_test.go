@@ -83,3 +83,77 @@ func TestGetsTheValueForNonExistingKey(t *testing.T) {
 	_, ok := sentinelNode.get(NewVersionedKey([]byte("Storage"), 1))
 	assert.Equal(t, false, ok)
 }
+
+func TestIteratorSeekWithMatchingKey(t *testing.T) {
+	const maxLevel = 8
+	sentinelNode := newSkiplistNode(emptyVersionedKey(), emptyValue(), maxLevel)
+
+	levelGenerator := utils.NewLevelGenerator(maxLevel)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")), levelGenerator)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("SSD"), 2), NewValue([]byte("Solid state")), levelGenerator)
+
+	iterator := sentinelNode.iterator()
+	iterator.seek(NewVersionedKey([]byte("SSD"), 2))
+
+	assert.True(t, iterator.isValid())
+	assert.Equal(t, "SSD", iterator.key().asString())
+	assert.Equal(t, "Solid state", string(iterator.value().Slice()))
+}
+
+func TestIteratorSeekWithKeyGreaterThanTheExistingKey(t *testing.T) {
+	const maxLevel = 8
+	sentinelNode := newSkiplistNode(emptyVersionedKey(), emptyValue(), maxLevel)
+
+	levelGenerator := utils.NewLevelGenerator(maxLevel)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")), levelGenerator)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("SSD"), 2), NewValue([]byte("Solid state")), levelGenerator)
+
+	iterator := sentinelNode.iterator()
+	iterator.seek(NewVersionedKey([]byte("SSD"), 1))
+
+	assert.True(t, iterator.isValid())
+	assert.Equal(t, "SSD", iterator.key().asString())
+	assert.Equal(t, "Solid state", string(iterator.value().Slice()))
+}
+
+func TestIteratorSeekWithKeyDifferentThanKeyPrefix(t *testing.T) {
+	const maxLevel = 8
+	sentinelNode := newSkiplistNode(emptyVersionedKey(), emptyValue(), maxLevel)
+
+	levelGenerator := utils.NewLevelGenerator(maxLevel)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("DB"), 1), NewValue([]byte("TinyDB")), levelGenerator)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")), levelGenerator)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("SSD"), 2), NewValue([]byte("Solid state")), levelGenerator)
+
+	iterator := sentinelNode.iterator()
+	iterator.seek(NewVersionedKey([]byte("DB"), 2))
+
+	assert.True(t, iterator.isValid())
+	assert.Equal(t, "HDD", iterator.key().asString())
+	assert.Equal(t, "Hard disk", string(iterator.value().Slice()))
+}
+
+func TestIteratorNext(t *testing.T) {
+	const maxLevel = 8
+	sentinelNode := newSkiplistNode(emptyVersionedKey(), emptyValue(), maxLevel)
+
+	levelGenerator := utils.NewLevelGenerator(maxLevel)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("DB"), 1), NewValue([]byte("TinyDB")), levelGenerator)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")), levelGenerator)
+	sentinelNode.putOrUpdate(NewVersionedKey([]byte("SSD"), 2), NewValue([]byte("Solid state")), levelGenerator)
+
+	iterator := sentinelNode.iterator()
+	iterator.seek(NewVersionedKey([]byte("DB"), 2))
+
+	assert.True(t, iterator.isValid())
+	assert.Equal(t, "HDD", iterator.key().asString())
+	assert.Equal(t, "Hard disk", string(iterator.value().Slice()))
+
+	iterator.next()
+	assert.True(t, iterator.isValid())
+	assert.Equal(t, "SSD", iterator.key().asString())
+	assert.Equal(t, "Solid state", string(iterator.value().Slice()))
+
+	iterator.next()
+	assert.False(t, iterator.isValid())
+}
