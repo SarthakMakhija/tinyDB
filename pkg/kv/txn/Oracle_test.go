@@ -3,9 +3,9 @@ package txn
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"tinydb/kv"
-	"tinydb/kv/mvcc"
-	"tinydb/kv/txn/errors"
+	"tinydb/pkg/kv"
+	"tinydb/pkg/kv/mvcc"
+	"tinydb/pkg/kv/txn/errors"
 )
 
 func TestGetsTheBeginTimestamp(t *testing.T) {

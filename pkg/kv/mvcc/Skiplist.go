@@ -2,7 +2,7 @@ package mvcc
 
 import (
 	"sync"
-	"tinydb/kv/mvcc/utils"
+	"tinydb/pkg/kv/mvcc/utils"
 )
 
 const MaxHeight = 20

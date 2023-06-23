@@ -3,7 +3,7 @@ package txn
 import (
 	"context"
 	"sync"
-	txnErrors "tinydb/kv/txn/errors"
+	txnErrors "tinydb/pkg/kv/txn/errors"
 )
 
 // CommittedTransaction is a concurrently running ReadWriteTransaction which is ready to be committed.

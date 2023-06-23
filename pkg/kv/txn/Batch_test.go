@@ -3,7 +3,7 @@ package txn
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"tinydb/kv/txn/errors"
+	"tinydb/pkg/kv/txn/errors"
 )
 
 func TestEmptyBatch(t *testing.T) {

@@ -2,7 +2,7 @@ package txn
 
 import (
 	"bytes"
-	"tinydb/kv/txn/errors"
+	"tinydb/pkg/kv/txn/errors"
 )
 
 // KeyValuePair wraps a key and a value.

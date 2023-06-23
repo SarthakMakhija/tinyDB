@@ -1,6 +1,8 @@
 package txn
 
-import "tinydb/kv/mvcc"
+import (
+	mvcc2 "tinydb/pkg/kv/mvcc"
+)
 
 // TransactionExecutor represents an implementation of [Singular Update Queue](https://martinfowler.com/articles/patterns-of-distributed-systems/singular-update-queue.html).
 // TransactionExecutor applies all the commits sequentially.
@@ -12,11 +14,11 @@ import "tinydb/kv/mvcc"
 type TransactionExecutor struct {
 	batchChannel chan TimestampedBatch
 	stopChannel  chan struct{}
-	memtable     *mvcc.MemTable
+	memtable     *mvcc2.MemTable
 }
 
 // NewTransactionExecutor creates a new instance of TransactionExecutor. It is called once in the entire application.
-func NewTransactionExecutor(memtable *mvcc.MemTable) *TransactionExecutor {
+func NewTransactionExecutor(memtable *mvcc2.MemTable) *TransactionExecutor {
 	transactionExecutor := &TransactionExecutor{
 		batchChannel: make(chan TimestampedBatch),
 		stopChannel:  make(chan struct{}),
@@ -62,8 +64,8 @@ func (executor *TransactionExecutor) spin() {
 func (executor *TransactionExecutor) apply(timestampedBatch TimestampedBatch) {
 	for _, keyValuePair := range timestampedBatch.AllPairs() {
 		executor.memtable.PutOrUpdate(
-			mvcc.NewVersionedKey(keyValuePair.getKey(), timestampedBatch.timestamp),
-			mvcc.NewValue(keyValuePair.getValue()),
+			mvcc2.NewVersionedKey(keyValuePair.getKey(), timestampedBatch.timestamp),
+			mvcc2.NewValue(keyValuePair.getValue()),
 		)
 	}
 	timestampedBatch.commitCallback()

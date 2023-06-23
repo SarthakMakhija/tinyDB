@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"testing"
 	"time"
-	"tinydb/kv"
-	"tinydb/kv/mvcc"
+	"tinydb/pkg/kv"
+	"tinydb/pkg/kv/mvcc"
 )
 
 func RandomWALFileId() uint64 {
