@@ -38,6 +38,7 @@ func TestUpdatesTheSameKeyWithADifferentVersion(t *testing.T) {
 
 	valueWithVersion, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 3))
 	assert.Equal(t, true, ok)
+	assert.Equal(t, uint64(2), valueWithVersion.Version)
 	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())
 }
 
@@ -49,6 +50,7 @@ func TestGetsTheValueOfAKeyWithTheNearestVersion(t *testing.T) {
 
 	valueWithVersion, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 10))
 	assert.Equal(t, true, ok)
+	assert.Equal(t, uint64(2), valueWithVersion.Version)
 	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())
 }
 
@@ -96,6 +98,7 @@ func TestIteratorSeekWithMatchingKey(t *testing.T) {
 	iterator.seek(NewVersionedKey([]byte("SSD"), 2))
 
 	assert.True(t, iterator.isValid())
+	assert.Equal(t, uint64(2), iterator.value().Version)
 	assert.Equal(t, "SSD", iterator.key().asString())
 	assert.Equal(t, "Solid state", string(iterator.value().ValueSlice()))
 }
@@ -125,6 +128,7 @@ func TestIteratorSeekWithKeyDifferentThanKeyPrefix(t *testing.T) {
 	iterator.seek(NewVersionedKey([]byte("DB"), 2))
 
 	assert.True(t, iterator.isValid())
+	assert.Equal(t, uint64(1), iterator.value().Version)
 	assert.Equal(t, "HDD", iterator.key().asString())
 	assert.Equal(t, "Hard disk", string(iterator.value().ValueSlice()))
 }

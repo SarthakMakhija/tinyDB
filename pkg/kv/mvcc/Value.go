@@ -12,10 +12,10 @@ type Value struct {
 	deleted byte
 }
 
-// ValueWithVersion wraps the Value and its version. It is returned from Skiplist as a part of Get method and also from the Iterator.
+// ValueWithVersion wraps the Value and its Version. It is returned from Skiplist as a part of Get method and also from the Iterator.
 type ValueWithVersion struct {
 	Value
-	version uint64
+	Version uint64
 }
 
 // NewValueWithVersion creates a new instance of the ValueWithVersion.
@@ -26,7 +26,7 @@ func NewValueWithVersion(value Value, version uint64) ValueWithVersion {
 	}
 }
 
-// emptyValueWithNoVersion returns an empty value with zero version
+// emptyValueWithNoVersion returns an empty value with zero Version
 func emptyValueWithZeroVersion() ValueWithVersion {
 	return NewValueWithVersion(emptyValue(), 0)
 }

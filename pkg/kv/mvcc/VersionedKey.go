@@ -8,9 +8,9 @@ import (
 
 const versionSize = int(unsafe.Sizeof(uint64(0)))
 
-// VersionedKey represents a key with a version.
+// VersionedKey represents a key with a Version.
 // Versioned is used as a key inside Skiplist based memtable which acts as an in-memory store.
-// Versioned key has a version field that is the commitTimestamp of the key which is assigned by txn.Oracle.
+// Versioned key has a Version field that is the commitTimestamp of the key which is assigned by txn.Oracle.
 type VersionedKey struct {
 	key     []byte
 	version uint64

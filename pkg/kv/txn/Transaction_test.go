@@ -105,6 +105,7 @@ func TestGetsTheValueFromAKeyInAReadWriteTransactionFromBatch(t *testing.T) {
 
 	value, ok := transaction.Get([]byte("HDD"))
 	assert.Equal(t, true, ok)
+	assert.Equal(t, transaction.beginTimestamp, value.Version)
 	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 
 	done, _ := transaction.Commit()
