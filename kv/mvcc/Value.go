@@ -1,5 +1,9 @@
 package mvcc
 
+import "unsafe"
+
+const deletedFlagSize = int(unsafe.Sizeof(byte(0)))
+
 var nilValue []byte
 
 // Value wraps a []byte which acts as a value in the MemTable.
@@ -52,4 +56,9 @@ func (value Value) encode() []byte {
 func (value *Value) decodeFrom(part []byte) {
 	value.deleted = part[0]
 	value.value = part[1:]
+}
+
+// size returns the total size of a single Value
+func (value Value) size() uint64 {
+	return uint64(len(value.value) + deletedFlagSize)
 }

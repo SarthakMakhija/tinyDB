@@ -11,12 +11,14 @@ type Skiplist struct {
 	lock           sync.RWMutex
 	head           *SkiplistNode
 	levelGenerator utils.LevelGenerator
+	size           uint64
 }
 
 func newSkiplist() *Skiplist {
 	return &Skiplist{
 		head:           newSkiplistNode(emptyVersionedKey(), emptyValue(), MaxHeight),
 		levelGenerator: utils.NewLevelGenerator(MaxHeight),
+		size:           0,
 	}
 }
 
@@ -26,6 +28,7 @@ func (skiplist *Skiplist) putOrUpdate(key VersionedKey, value Value) {
 	defer skiplist.lock.Unlock()
 
 	skiplist.head.putOrUpdate(key, value, skiplist.levelGenerator)
+	skiplist.size = skiplist.size + key.size() + value.size()
 }
 
 // Get returns a pair of (Value, bool) for the incoming key.

@@ -151,3 +151,23 @@ func TestIteratorNext(t *testing.T) {
 	iterator.next()
 	assert.False(t, iterator.isValid())
 }
+
+func TestPutsAKeyValueAndGetsTheSize(t *testing.T) {
+	skiplist := newSkiplist()
+
+	key := NewVersionedKey([]byte("HDD"), 1)
+	value := NewValue([]byte("Hard disk"))
+
+	skiplist.putOrUpdate(key, value)
+	assert.Equal(t, uint64(21), skiplist.size)
+}
+
+func TestPutsADeletedKeyValueAndGetsTheSize(t *testing.T) {
+	skiplist := newSkiplist()
+
+	key := NewVersionedKey([]byte("HDD"), 1)
+	value := NewDeletedValue()
+
+	skiplist.putOrUpdate(key, value)
+	assert.Equal(t, uint64(12), skiplist.size)
+}

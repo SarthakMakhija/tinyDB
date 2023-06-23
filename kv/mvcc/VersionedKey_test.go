@@ -66,3 +66,8 @@ func TestEncodeAndDecodeTheVersionedKey(t *testing.T) {
 
 	assert.Equal(t, "storage", decoded.asString())
 }
+
+func TestSizeOfVersionedKey(t *testing.T) {
+	versionedKey := NewVersionedKey([]byte("storage"), 1)
+	assert.Equal(t, uint64(15), versionedKey.size())
+}

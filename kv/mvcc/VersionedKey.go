@@ -83,3 +83,8 @@ func (versionedKey *VersionedKey) decode(part []byte) {
 	versionedKey.version = version
 	versionedKey.key = key
 }
+
+// size returns the total size of a single VersionedKey
+func (versionedKey *VersionedKey) size() uint64 {
+	return uint64(len(versionedKey.key) + versionSize)
+}

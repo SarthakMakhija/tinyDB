@@ -38,3 +38,13 @@ func TestDeletedEncodedValue(t *testing.T) {
 	assert.Equal(t, true, decodedValue.IsDeleted())
 	assert.Equal(t, "", string(decodedValue.ValueSlice()))
 }
+
+func TestValueSize(t *testing.T) {
+	value := NewValue([]byte("Hard disk"))
+	assert.Equal(t, uint64(10), value.size())
+}
+
+func TestDeletedValueSize(t *testing.T) {
+	value := NewDeletedValue()
+	assert.Equal(t, uint64(1), value.size())
+}
