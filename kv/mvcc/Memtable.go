@@ -25,7 +25,7 @@ func NewMemTable(fileId uint64, options *kv.Options) (*MemTable, error) {
 
 // PutOrUpdate puts or updates the key and the value pair in the SkipList.
 func (memTable *MemTable) PutOrUpdate(key VersionedKey, value Value) error {
-	err := memTable.wal.Write(log.NewEntry(key.encode(), value.Slice()))
+	err := memTable.wal.Write(log.NewEntry(key.encode(), value.ValueSlice()))
 	if err != nil {
 		return err
 	}

@@ -17,7 +17,7 @@ func emptyValue() Value {
 	return Value{}
 }
 
-// Slice returns the byte slice present in the Value.
-func (value Value) Slice() []byte {
+// ValueSlice returns the byte slice present in the Value.
+func (value Value) ValueSlice() []byte {
 	return value.value
 }

@@ -23,11 +23,11 @@ func TestExecutesABatch(t *testing.T) {
 
 	value, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.Slice())
+	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 
 	value, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Snapshot"), value.Slice())
+	assert.Equal(t, []byte("Snapshot"), value.ValueSlice())
 }
 
 func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
@@ -47,11 +47,11 @@ func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
 
 	value, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.Slice())
+	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 
 	value, ok = memTable.Get(mvcc.NewVersionedKey([]byte("commit"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("applied"), value.Slice())
+	assert.Equal(t, []byte("applied"), value.ValueSlice())
 }
 
 func TestExecutes2Batches(t *testing.T) {
@@ -78,19 +78,19 @@ func TestExecutes2Batches(t *testing.T) {
 
 	value, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.Slice())
+	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 
 	value, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Snapshot"), value.Slice())
+	assert.Equal(t, []byte("Snapshot"), value.ValueSlice())
 
 	value, ok = memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 3))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk drive"), value.Slice())
+	assert.Equal(t, []byte("Hard disk drive"), value.ValueSlice())
 
 	value, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 3))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Serialized Snapshot"), value.Slice())
+	assert.Equal(t, []byte("Serialized Snapshot"), value.ValueSlice())
 }
 
 func TestExecutesABatchAndStops(t *testing.T) {
@@ -112,9 +112,9 @@ func TestExecutesABatchAndStops(t *testing.T) {
 
 	value, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.Slice())
+	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 
 	value, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Snapshot"), value.Slice())
+	assert.Equal(t, []byte("Snapshot"), value.ValueSlice())
 }

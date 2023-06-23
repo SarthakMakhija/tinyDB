@@ -33,7 +33,7 @@ func TestGetsAnExistingKeyInAReadonlyTransaction(t *testing.T) {
 	value, ok := transaction.Get([]byte("HDD"))
 
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.Slice())
+	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 }
 
 func TestCommitsAnEmptyReadWriteTransaction(t *testing.T) {
@@ -87,7 +87,7 @@ func TestGetsAnExistingKeyInAReadWriteTransaction(t *testing.T) {
 
 	value, ok := readonlyTransaction.Get([]byte("HDD"))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.Slice())
+	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 
 	_, ok = readonlyTransaction.Get([]byte("SSD"))
 	assert.Equal(t, false, ok)
@@ -105,7 +105,7 @@ func TestGetsTheValueFromAKeyInAReadWriteTransactionFromBatch(t *testing.T) {
 
 	value, ok := transaction.Get([]byte("HDD"))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.Slice())
+	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 
 	done, _ := transaction.Commit()
 	<-done

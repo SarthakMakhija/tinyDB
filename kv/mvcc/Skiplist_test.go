@@ -15,7 +15,7 @@ func TestPutsAKeyValueAndGetByKeyInNode(t *testing.T) {
 
 	value, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.Slice())
+	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 }
 
 func TestUpdatesTheSameKeyWithADifferentVersion(t *testing.T) {
@@ -26,7 +26,7 @@ func TestUpdatesTheSameKeyWithADifferentVersion(t *testing.T) {
 
 	value, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 3))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk drive"), value.Slice())
+	assert.Equal(t, []byte("Hard disk drive"), value.ValueSlice())
 }
 
 func TestGetsTheValueOfAKeyWithTheNearestVersion(t *testing.T) {
@@ -37,7 +37,7 @@ func TestGetsTheValueOfAKeyWithTheNearestVersion(t *testing.T) {
 
 	value, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 10))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk drive"), value.Slice())
+	assert.Equal(t, []byte("Hard disk drive"), value.ValueSlice())
 }
 
 func TestGetsTheValueOfAKeyWithLatestVersion(t *testing.T) {
@@ -60,7 +60,7 @@ func TestGetsTheValueOfAKeyWithLatestVersion(t *testing.T) {
 		value, ok := skiplist.get(key)
 
 		assert.Equal(t, true, ok)
-		assert.Equal(t, expectedValue, value.Slice())
+		assert.Equal(t, expectedValue, value.ValueSlice())
 	}
 }
 
@@ -85,7 +85,7 @@ func TestIteratorSeekWithMatchingKey(t *testing.T) {
 
 	assert.True(t, iterator.isValid())
 	assert.Equal(t, "SSD", iterator.key().asString())
-	assert.Equal(t, "Solid state", string(iterator.value().Slice()))
+	assert.Equal(t, "Solid state", string(iterator.value().ValueSlice()))
 }
 
 func TestIteratorSeekWithKeyGreaterThanTheExistingKey(t *testing.T) {
@@ -99,7 +99,7 @@ func TestIteratorSeekWithKeyGreaterThanTheExistingKey(t *testing.T) {
 
 	assert.True(t, iterator.isValid())
 	assert.Equal(t, "SSD", iterator.key().asString())
-	assert.Equal(t, "Solid state", string(iterator.value().Slice()))
+	assert.Equal(t, "Solid state", string(iterator.value().ValueSlice()))
 }
 
 func TestIteratorSeekWithKeyDifferentThanKeyPrefix(t *testing.T) {
@@ -114,7 +114,7 @@ func TestIteratorSeekWithKeyDifferentThanKeyPrefix(t *testing.T) {
 
 	assert.True(t, iterator.isValid())
 	assert.Equal(t, "HDD", iterator.key().asString())
-	assert.Equal(t, "Hard disk", string(iterator.value().Slice()))
+	assert.Equal(t, "Hard disk", string(iterator.value().ValueSlice()))
 }
 
 func TestIteratorNext(t *testing.T) {
@@ -129,12 +129,12 @@ func TestIteratorNext(t *testing.T) {
 
 	assert.True(t, iterator.isValid())
 	assert.Equal(t, "HDD", iterator.key().asString())
-	assert.Equal(t, "Hard disk", string(iterator.value().Slice()))
+	assert.Equal(t, "Hard disk", string(iterator.value().ValueSlice()))
 
 	iterator.next()
 	assert.True(t, iterator.isValid())
 	assert.Equal(t, "SSD", iterator.key().asString())
-	assert.Equal(t, "Solid state", string(iterator.value().Slice()))
+	assert.Equal(t, "Solid state", string(iterator.value().ValueSlice()))
 
 	iterator.next()
 	assert.False(t, iterator.isValid())
