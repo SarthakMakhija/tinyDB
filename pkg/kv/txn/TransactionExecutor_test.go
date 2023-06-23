@@ -21,11 +21,11 @@ func TestExecutesABatch(t *testing.T) {
 	doneChannel := executor.Submit(batch.ToTimestampedBatch(1, noCallback))
 	<-doneChannel
 
-	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 2))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Snapshot"), valueWithVersion.ValueSlice())
 }
@@ -45,11 +45,11 @@ func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
 	doneChannel := executor.Submit(batch.ToTimestampedBatch(1, commitCallback))
 	<-doneChannel
 
-	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("commit"), 2))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("commit"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("applied"), valueWithVersion.ValueSlice())
 }
@@ -76,11 +76,11 @@ func TestExecutes2Batches(t *testing.T) {
 	doneChannel = executor.Submit(anotherBatch.ToTimestampedBatch(2, noCallback))
 	<-doneChannel
 
-	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 2))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Snapshot"), valueWithVersion.ValueSlice())
 
@@ -110,11 +110,11 @@ func TestExecutesABatchAndStops(t *testing.T) {
 
 	executor.Stop()
 
-	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 2))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Snapshot"), valueWithVersion.ValueSlice())
 }

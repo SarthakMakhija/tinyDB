@@ -25,9 +25,9 @@ func TestGetsAnExistingKeyInAReadonlyTransaction(t *testing.T) {
 	_ = memTable.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk")))
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
-	oracle.nextTimestamp = 3
+	oracle.nextTimestamp = 2
 
-	oracle.commitTimestampMark.Finish(2)
+	oracle.commitTimestampMark.Finish(1)
 
 	transaction := NewReadonlyTransaction(oracle)
 	valueWithVersion, ok := transaction.Get([]byte("HDD"))

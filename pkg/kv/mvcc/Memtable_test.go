@@ -20,7 +20,7 @@ func TestPutsAKeyValueAndGetByKeyInMemTable(t *testing.T) {
 	value := NewValue([]byte("Hard disk"))
 	_ = memTable.PutOrUpdate(key, value)
 
-	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 1))
 
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
@@ -33,7 +33,7 @@ func TestPutsTheSameKeyWithADifferentVersionInMemTable(t *testing.T) {
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 2), NewValue([]byte("Hard disk drive")))
 
-	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 3))
+	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 2))
 
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())
@@ -71,11 +71,11 @@ func TestUpdatesAKeyValueAndGetByKeyInMemTable(t *testing.T) {
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 2), NewValue([]byte("Hard disk drive")))
 
-	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	valueWithVersion, ok = memTable.Get(NewVersionedKey([]byte("HDD"), 3))
+	valueWithVersion, ok = memTable.Get(NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())
 }
@@ -102,11 +102,11 @@ func TestPutsKeysValuesConcurrentlyInMemtable(t *testing.T) {
 
 	wg.Wait()
 
-	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	valueWithVersion, ok = memTable.Get(NewVersionedKey([]byte("HDD"), 3))
+	valueWithVersion, ok = memTable.Get(NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())
 
@@ -123,7 +123,7 @@ func TestDeletesAKey(t *testing.T) {
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 2), NewValue([]byte("Hard disk drive")))
 	_ = memTable.Delete(NewVersionedKey([]byte("HDD"), 3))
 
-	_, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 4))
+	_, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 3))
 
 	assert.Equal(t, false, ok)
 }
@@ -136,7 +136,7 @@ func TestDeletesAKeyButReadsADifferentVersion(t *testing.T) {
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 2), NewValue([]byte("Hard disk drive")))
 	_ = memTable.Delete(NewVersionedKey([]byte("HDD"), 3))
 
-	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 3))
+	valueWithVersion, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 2))
 
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())

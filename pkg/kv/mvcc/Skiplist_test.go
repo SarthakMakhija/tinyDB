@@ -13,7 +13,7 @@ func TestPutsAKeyValueAndGetByKeyInNode(t *testing.T) {
 
 	skiplist.putOrUpdate(key, value)
 
-	valueWithVersion, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 1))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 }
@@ -26,7 +26,7 @@ func TestPutsADeletedKeyValueAndGetByKeyInNode(t *testing.T) {
 
 	skiplist.putOrUpdate(key, value)
 
-	_, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 2))
+	_, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 1))
 	assert.Equal(t, false, ok)
 }
 
@@ -36,7 +36,7 @@ func TestUpdatesTheSameKeyWithADifferentVersion(t *testing.T) {
 	skiplist.putOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
 	skiplist.putOrUpdate(NewVersionedKey([]byte("HDD"), 2), NewValue([]byte("Hard disk drive")))
 
-	valueWithVersion, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 3))
+	valueWithVersion, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
 	assert.Equal(t, uint64(2), valueWithVersion.Version)
 	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())
@@ -64,10 +64,10 @@ func TestGetsTheValueOfAKeyWithLatestVersion(t *testing.T) {
 	skiplist.putOrUpdate(NewVersionedKey([]byte("SSD"), 3), NewValue([]byte("Solid-State-drive")))
 
 	expected := make(map[uint64][]byte)
-	expected[2] = []byte("Solid state drive")
-	expected[3] = []byte("Solid State drive")
+	expected[1] = []byte("Solid state drive")
+	expected[2] = []byte("Solid State drive")
+	expected[3] = []byte("Solid-State-drive")
 	expected[4] = []byte("Solid-State-drive")
-	expected[5] = []byte("Solid-State-drive")
 
 	for version, expectedValue := range expected {
 		key := NewVersionedKey([]byte("SSD"), version)

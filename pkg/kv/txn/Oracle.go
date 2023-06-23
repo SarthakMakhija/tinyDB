@@ -21,7 +21,6 @@ type CommittedTransaction struct {
 // beginTimestampMark is used to indicate till what timestamp have the transactions begun. This information is used to clean up
 // the committedTransactions.
 // commitTimestampMark is used to block the new transactions, so all previous commits are visible to a new read.
-// However, the system still reads the keys where commitTimestampOf(Key) < beginTimestampOf(transaction).
 type Oracle struct {
 	lock                  sync.Mutex
 	executorLock          sync.Mutex
@@ -67,6 +66,7 @@ func (oracle *Oracle) Stop() {
 // beginTimestamp = nextTimestamp - 1
 // Before returning the beginTimestamp, the system performs a wait on the commitTimestampMark.
 // This wait is to ensure that all the commits till beginTimestamp are applied.
+// This also means that all the Get operations return the values for keys where the commitTimestamp of the key <= beginTimestamp of the transaction.
 func (oracle *Oracle) beginTimestamp() uint64 {
 	oracle.lock.Lock()
 	beginTimestamp := oracle.nextTimestamp - 1
