@@ -114,3 +114,30 @@ func TestPutsKeysValuesConcurrentlyInMemtable(t *testing.T) {
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Solid state"), value.ValueSlice())
 }
+
+func TestDeletesAKey(t *testing.T) {
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
+	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
+	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 2), NewValue([]byte("Hard disk drive")))
+	_ = memTable.Delete(NewVersionedKey([]byte("HDD"), 3))
+
+	_, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 4))
+
+	assert.Equal(t, false, ok)
+}
+
+func TestDeletesAKeyButReadsADifferentVersion(t *testing.T) {
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	defer memTable.RemoveWAL()
+
+	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
+	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 2), NewValue([]byte("Hard disk drive")))
+	_ = memTable.Delete(NewVersionedKey([]byte("HDD"), 3))
+
+	value, ok := memTable.Get(NewVersionedKey([]byte("HDD"), 3))
+
+	assert.Equal(t, true, ok)
+	assert.Equal(t, []byte("Hard disk drive"), value.ValueSlice())
+}

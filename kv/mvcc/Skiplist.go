@@ -100,7 +100,7 @@ func (node *SkiplistNode) putOrUpdate(key VersionedKey, value Value, levelGenera
 // KeyPrefix is the actual key or the byte slice.
 func (node *SkiplistNode) get(key VersionedKey) (Value, bool) {
 	node, ok := node.matchingNode(key)
-	if ok {
+	if ok && !node.value.IsDeleted() {
 		return node.value, true
 	}
 	return emptyValue(), false

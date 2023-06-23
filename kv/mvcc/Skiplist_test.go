@@ -18,6 +18,18 @@ func TestPutsAKeyValueAndGetByKeyInNode(t *testing.T) {
 	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
 }
 
+func TestPutsADeletedKeyValueAndGetByKeyInNode(t *testing.T) {
+	skiplist := newSkiplist()
+
+	key := NewVersionedKey([]byte("HDD"), 1)
+	value := NewDeletedValue()
+
+	skiplist.putOrUpdate(key, value)
+
+	_, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 2))
+	assert.Equal(t, false, ok)
+}
+
 func TestUpdatesTheSameKeyWithADifferentVersion(t *testing.T) {
 	skiplist := newSkiplist()
 

@@ -23,7 +23,7 @@ func NewMemTable(fileId uint64, options *kv.Options) (*MemTable, error) {
 	}, nil
 }
 
-// PutOrUpdate puts or updates the key and the value pair in the SkipList.
+// PutOrUpdate puts or updates the key and the value pair in the SkipList and the associated WA:.
 func (memTable *MemTable) PutOrUpdate(key VersionedKey, value Value) error {
 	err := memTable.wal.Write(log.NewEntry(key.encode(), value.ValueSlice()))
 	if err != nil {
@@ -31,6 +31,20 @@ func (memTable *MemTable) PutOrUpdate(key VersionedKey, value Value) error {
 	}
 
 	memTable.skiplist.putOrUpdate(key, value)
+	return nil
+}
+
+// Delete deletes the key.
+// Deletion is not a physical deletion.
+// Deletion involves: Creating a new Entry with a NewDeletedValue and appending the entry in the WAL.
+// The Key and the NewDeletedValue are added to the Skiplist.
+func (memTable *MemTable) Delete(key VersionedKey) error {
+	deletedValue := NewDeletedValue()
+	err := memTable.wal.Write(log.NewEntry(key.encode(), deletedValue.encode()))
+	if err != nil {
+		return err
+	}
+	memTable.skiplist.putOrUpdate(key, deletedValue)
 	return nil
 }
 
