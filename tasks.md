@@ -5,6 +5,7 @@
 - [X] Write to WAL on memtable's `PutOrUpdate`
 - [ ] Provide an option to perform SYNC after every batch write in WAL
 - [ ] Close the WAL (segment) when the memtable is full
+- [X] Delete in memtable
 
 ## Support for iterator
 - [X] Iterator for Skiplist
