@@ -60,6 +60,8 @@ func (memTable *MemTable) write(key VersionedKey, value Value) error {
 	return nil
 }
 
+// isFull returns true of the size of the memtable is greater or equal to the maximum size of the MemTable.
+// isFull will check the size of the Skiplist and the CurrentWritableOffset of WAL to check if the MemTable is full.
 func (memTable *MemTable) isFull() bool {
 	if memTable.skiplist.size >= memTable.options.MemtableSizeInBytes {
 		return true
