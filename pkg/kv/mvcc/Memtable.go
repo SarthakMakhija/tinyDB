@@ -2,20 +2,20 @@ package mvcc
 
 import (
 	"tinydb/pkg/kv"
-	log2 "tinydb/pkg/kv/log"
+	log "tinydb/pkg/kv/log"
 )
 
 // MemTable is an in-memory structure built on top of SkipList.
 type MemTable struct {
 	skiplist *Skiplist
-	wal      *log2.WAL
+	wal      *log.WAL
 	options  *kv.Options
 }
 
 // NewMemTable creates a new instance of MemTable.
 // TODO: Validate options
 func NewMemTable(fileId uint64, options *kv.Options) (*MemTable, error) {
-	wal, err := log2.NewWAL(fileId, options.DbDirectory)
+	wal, err := log.NewWAL(fileId, options.DbDirectory)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (memTable *MemTable) RemoveWAL() {
 
 // write to WAL and Skiplist.
 func (memTable *MemTable) write(key VersionedKey, value Value) error {
-	err := memTable.wal.Write(log2.NewEntry(key.encode(), value.encode()))
+	err := memTable.wal.Write(log.NewEntry(key.encode(), value.encode()))
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,7 @@
 package txn
 
 import (
-	mvcc2 "tinydb/pkg/kv/mvcc"
+	mvcc "tinydb/pkg/kv/mvcc"
 	"tinydb/pkg/kv/txn/errors"
 )
 
@@ -9,7 +9,7 @@ import (
 // A ReadonlyTransaction is assigned a beginTimestamp everytime it starts and can only perform a `get` operation.
 type ReadonlyTransaction struct {
 	beginTimestamp uint64
-	memtable       *mvcc2.MemTable
+	memtable       *mvcc.MemTable
 	oracle         *Oracle
 }
 
@@ -22,7 +22,7 @@ type ReadWriteTransaction struct {
 	beginTimestamp uint64
 	batch          *Batch
 	reads          [][]byte
-	memtable       *mvcc2.MemTable
+	memtable       *mvcc.MemTable
 	oracle         *Oracle
 }
 
@@ -47,8 +47,8 @@ func NewReadWriteTransaction(oracle *Oracle) *ReadWriteTransaction {
 
 // Get performs a get operation from the mvcc.MemTable.
 // It returns a pair  of (mvcc.Value and true) if the value exists for the key, (nil, false) otherwise.
-func (transaction *ReadonlyTransaction) Get(key []byte) (mvcc2.Value, bool) {
-	versionedKey := mvcc2.NewVersionedKey(key, transaction.beginTimestamp)
+func (transaction *ReadonlyTransaction) Get(key []byte) (mvcc.Value, bool) {
+	versionedKey := mvcc.NewVersionedKey(key, transaction.beginTimestamp)
 	return transaction.memtable.Get(versionedKey)
 }
 
@@ -62,13 +62,13 @@ func (transaction *ReadonlyTransaction) FinishBeginTimestampForReadonlyTransacti
 // Get performs a get operation from the mvcc.MemTable.
 // It returns a pair  of (mvcc.Value and true) if the value exists for the key, (nil, false) otherwise.
 // Unlike the Get of ReadonlyTransaction, reads are tracked inside the Get of ReadWriteTransaction.
-func (transaction *ReadWriteTransaction) Get(key []byte) (mvcc2.Value, bool) {
+func (transaction *ReadWriteTransaction) Get(key []byte) (mvcc.Value, bool) {
 	if value, ok := transaction.batch.Get(key); ok {
-		return mvcc2.NewValue(value), true
+		return mvcc.NewValue(value), true
 	}
 	transaction.reads = append(transaction.reads, key)
 
-	versionedKey := mvcc2.NewVersionedKey(key, transaction.beginTimestamp)
+	versionedKey := mvcc.NewVersionedKey(key, transaction.beginTimestamp)
 	return transaction.memtable.Get(versionedKey)
 }
 
