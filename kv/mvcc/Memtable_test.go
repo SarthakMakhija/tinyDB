@@ -13,7 +13,7 @@ func RandomWALFileId() uint64 {
 }
 
 func TestPutsAKeyValueAndGetByKeyInMemTable(t *testing.T) {
-	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	key := NewVersionedKey([]byte("HDD"), 1)
@@ -27,7 +27,7 @@ func TestPutsAKeyValueAndGetByKeyInMemTable(t *testing.T) {
 }
 
 func TestPutsTheSameKeyWithADifferentVersionInMemTable(t *testing.T) {
-	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
@@ -40,7 +40,7 @@ func TestPutsTheSameKeyWithADifferentVersionInMemTable(t *testing.T) {
 }
 
 func TestGetsTheValueOfAKeyWithTheNearestVersionInMemTable(t *testing.T) {
-	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
@@ -53,7 +53,7 @@ func TestGetsTheValueOfAKeyWithTheNearestVersionInMemTable(t *testing.T) {
 }
 
 func TestGetsTheValueOfANonExistingKeyInMemTable(t *testing.T) {
-	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
@@ -65,7 +65,7 @@ func TestGetsTheValueOfANonExistingKeyInMemTable(t *testing.T) {
 }
 
 func TestUpdatesAKeyValueAndGetByKeyInMemTable(t *testing.T) {
-	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
@@ -81,7 +81,7 @@ func TestUpdatesAKeyValueAndGetByKeyInMemTable(t *testing.T) {
 }
 
 func TestPutsKeysValuesConcurrentlyInMemtable(t *testing.T) {
-	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	var wg sync.WaitGroup
@@ -116,7 +116,7 @@ func TestPutsKeysValuesConcurrentlyInMemtable(t *testing.T) {
 }
 
 func TestDeletesAKey(t *testing.T) {
-	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
@@ -129,7 +129,7 @@ func TestDeletesAKey(t *testing.T) {
 }
 
 func TestDeletesAKeyButReadsADifferentVersion(t *testing.T) {
-	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	_ = memTable.PutOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
@@ -140,4 +140,28 @@ func TestDeletesAKeyButReadsADifferentVersion(t *testing.T) {
 
 	assert.Equal(t, true, ok)
 	assert.Equal(t, []byte("Hard disk drive"), value.ValueSlice())
+}
+
+func TestMemtableIsFull(t *testing.T) {
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetMemtableSizeInBytes(20).SetDbDirectory("."))
+	defer memTable.RemoveWAL()
+
+	key := NewVersionedKey([]byte("HDD"), 1)
+	value := NewValue([]byte("Hard disk"))
+	_ = memTable.PutOrUpdate(key, value)
+
+	assert.Equal(t, uint64(21), memTable.skiplist.size)
+	assert.Equal(t, true, memTable.isFull())
+}
+
+func TestMemtableIsNotFull(t *testing.T) {
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetMemtableSizeInBytes(32).SetDbDirectory("."))
+	defer memTable.RemoveWAL()
+
+	key := NewVersionedKey([]byte("HDD"), 1)
+	value := NewValue([]byte("Hard disk"))
+	_ = memTable.PutOrUpdate(key, value)
+
+	assert.Equal(t, uint64(21), memTable.skiplist.size)
+	assert.Equal(t, false, memTable.isFull())
 }

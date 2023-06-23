@@ -9,7 +9,7 @@ import (
 )
 
 func TestGetsTheBeginTimestamp(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -17,7 +17,7 @@ func TestGetsTheBeginTimestamp(t *testing.T) {
 }
 
 func TestGetsTheBeginTimestampAfterACommit(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -33,7 +33,7 @@ func TestGetsTheBeginTimestampAfterACommit(t *testing.T) {
 }
 
 func TestGetsCommitTimestampForTransactionGivenNoTransactionsAreCurrentlyTracked(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -46,7 +46,7 @@ func TestGetsCommitTimestampForTransactionGivenNoTransactionsAreCurrentlyTracked
 }
 
 func TestGetsCommitTimestampFor2Transactions(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -69,7 +69,7 @@ func TestGetsCommitTimestampFor2Transactions(t *testing.T) {
 }
 
 func TestGetsCommitTimestampFor2TransactionsGivenOneTransactionReadTheKeyThatTheOtherWrites(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -93,7 +93,7 @@ func TestGetsCommitTimestampFor2TransactionsGivenOneTransactionReadTheKeyThatThe
 }
 
 func TestErrorsForOneTransaction(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions())
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))

@@ -9,9 +9,11 @@ import (
 type MemTable struct {
 	skiplist *Skiplist
 	wal      *log.WAL
+	options  *kv.Options
 }
 
 // NewMemTable creates a new instance of MemTable.
+// TODO: Validate options
 func NewMemTable(fileId uint64, options *kv.Options) (*MemTable, error) {
 	wal, err := log.NewWAL(fileId, options.DbDirectory)
 	if err != nil {
@@ -20,6 +22,7 @@ func NewMemTable(fileId uint64, options *kv.Options) (*MemTable, error) {
 	return &MemTable{
 		skiplist: newSkiplist(),
 		wal:      wal,
+		options:  options,
 	}, nil
 }
 
@@ -55,4 +58,12 @@ func (memTable *MemTable) write(key VersionedKey, value Value) error {
 	}
 	memTable.skiplist.putOrUpdate(key, value)
 	return nil
+}
+
+func (memTable *MemTable) isFull() bool {
+	if memTable.skiplist.size >= memTable.options.MemtableSizeInBytes {
+		return true
+	}
+	//TODO: Check WAL Size
+	return false
 }
