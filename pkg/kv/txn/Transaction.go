@@ -46,8 +46,8 @@ func NewReadWriteTransaction(oracle *Oracle) *ReadWriteTransaction {
 }
 
 // Get performs a get operation from the mvcc.MemTable.
-// It returns a pair  of (mvcc.Value and true) if the value exists for the key, (nil, false) otherwise.
-func (transaction *ReadonlyTransaction) Get(key []byte) (mvcc.Value, bool) {
+// It returns a pair  of (mvcc.ValueWithVersion and true) if the value exists for the key, (nil, false) otherwise.
+func (transaction *ReadonlyTransaction) Get(key []byte) (mvcc.ValueWithVersion, bool) {
 	versionedKey := mvcc.NewVersionedKey(key, transaction.beginTimestamp)
 	return transaction.memtable.Get(versionedKey)
 }
@@ -60,11 +60,11 @@ func (transaction *ReadonlyTransaction) FinishBeginTimestampForReadonlyTransacti
 }
 
 // Get performs a get operation from the mvcc.MemTable.
-// It returns a pair  of (mvcc.Value and true) if the value exists for the key, (nil, false) otherwise.
+// It returns a pair  of (mvcc.ValueWithVersion and true) if the value exists for the key, (nil, false) otherwise.
 // Unlike the Get of ReadonlyTransaction, reads are tracked inside the Get of ReadWriteTransaction.
-func (transaction *ReadWriteTransaction) Get(key []byte) (mvcc.Value, bool) {
+func (transaction *ReadWriteTransaction) Get(key []byte) (mvcc.ValueWithVersion, bool) {
 	if value, ok := transaction.batch.Get(key); ok {
-		return mvcc.NewValue(value), true
+		return mvcc.NewValueWithVersion(mvcc.NewValue(value), transaction.beginTimestamp), true
 	}
 	transaction.reads = append(transaction.reads, key)
 

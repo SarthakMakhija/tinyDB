@@ -4,12 +4,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"tinydb/pkg/kv"
-	mvcc2 "tinydb/pkg/kv/mvcc"
+	mvcc "tinydb/pkg/kv/mvcc"
 	"tinydb/pkg/kv/txn/errors"
 )
 
 func TestGetsANonExistingKeyInAReadonlyTransaction(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	transaction := NewReadonlyTransaction(NewOracle(NewTransactionExecutor(memTable)))
@@ -19,10 +19,10 @@ func TestGetsANonExistingKeyInAReadonlyTransaction(t *testing.T) {
 }
 
 func TestGetsAnExistingKeyInAReadonlyTransaction(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
-	_ = memTable.PutOrUpdate(mvcc2.NewVersionedKey([]byte("HDD"), 1), mvcc2.NewValue([]byte("Hard disk")))
+	_ = memTable.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk")))
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
 	oracle.nextTimestamp = 3
@@ -30,14 +30,14 @@ func TestGetsAnExistingKeyInAReadonlyTransaction(t *testing.T) {
 	oracle.commitTimestampMark.Finish(2)
 
 	transaction := NewReadonlyTransaction(oracle)
-	value, ok := transaction.Get([]byte("HDD"))
+	valueWithVersion, ok := transaction.Get([]byte("HDD"))
 
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 }
 
 func TestCommitsAnEmptyReadWriteTransaction(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -52,7 +52,7 @@ func TestCommitsAnEmptyReadWriteTransaction(t *testing.T) {
 }
 
 func TestAttemptsToPutDuplicateKeysInATransaction(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -68,7 +68,7 @@ func TestAttemptsToPutDuplicateKeysInATransaction(t *testing.T) {
 }
 
 func TestGetsAnExistingKeyInAReadWriteTransaction(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -85,9 +85,9 @@ func TestGetsAnExistingKeyInAReadWriteTransaction(t *testing.T) {
 
 	readonlyTransaction := NewReadonlyTransaction(oracle)
 
-	value, ok := readonlyTransaction.Get([]byte("HDD"))
+	valueWithVersion, ok := readonlyTransaction.Get([]byte("HDD"))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
 	_, ok = readonlyTransaction.Get([]byte("SSD"))
 	assert.Equal(t, false, ok)
@@ -97,7 +97,7 @@ func TestGetsAnExistingKeyInAReadWriteTransaction(t *testing.T) {
 }
 
 func TestGetsTheValueFromAKeyInAReadWriteTransactionFromBatch(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	transaction := NewReadWriteTransaction(NewOracle(NewTransactionExecutor(memTable)))
@@ -112,7 +112,7 @@ func TestGetsTheValueFromAKeyInAReadWriteTransactionFromBatch(t *testing.T) {
 }
 
 func TestTracksReadsInAReadWriteTransaction(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	transaction := NewReadWriteTransaction(NewOracle(NewTransactionExecutor(memTable)))
@@ -129,7 +129,7 @@ func TestTracksReadsInAReadWriteTransaction(t *testing.T) {
 }
 
 func TestDoesNotTrackReadsInAReadWriteTransactionIfKeysAreReadFromTheBatch(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	transaction := NewReadWriteTransaction(NewOracle(NewTransactionExecutor(memTable)))

@@ -4,11 +4,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"tinydb/pkg/kv"
-	mvcc2 "tinydb/pkg/kv/mvcc"
+	mvcc "tinydb/pkg/kv/mvcc"
 )
 
 func TestExecutesABatch(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	executor := NewTransactionExecutor(memTable)
@@ -21,17 +21,17 @@ func TestExecutesABatch(t *testing.T) {
 	doneChannel := executor.Submit(batch.ToTimestampedBatch(1, noCallback))
 	<-doneChannel
 
-	value, ok := memTable.Get(mvcc2.NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	value, ok = memTable.Get(mvcc2.NewVersionedKey([]byte("isolation"), 2))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Snapshot"), value.ValueSlice())
+	assert.Equal(t, []byte("Snapshot"), valueWithVersion.ValueSlice())
 }
 
 func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	executor := NewTransactionExecutor(memTable)
@@ -40,22 +40,22 @@ func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
 	_ = batch.Add([]byte("HDD"), []byte("Hard disk"))
 
 	commitCallback := func() {
-		_ = memTable.PutOrUpdate(mvcc2.NewVersionedKey([]byte("commit"), 1), mvcc2.NewValue([]byte("applied")))
+		_ = memTable.PutOrUpdate(mvcc.NewVersionedKey([]byte("commit"), 1), mvcc.NewValue([]byte("applied")))
 	}
 	doneChannel := executor.Submit(batch.ToTimestampedBatch(1, commitCallback))
 	<-doneChannel
 
-	value, ok := memTable.Get(mvcc2.NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	value, ok = memTable.Get(mvcc2.NewVersionedKey([]byte("commit"), 2))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("commit"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("applied"), value.ValueSlice())
+	assert.Equal(t, []byte("applied"), valueWithVersion.ValueSlice())
 }
 
 func TestExecutes2Batches(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	executor := NewTransactionExecutor(memTable)
@@ -76,25 +76,25 @@ func TestExecutes2Batches(t *testing.T) {
 	doneChannel = executor.Submit(anotherBatch.ToTimestampedBatch(2, noCallback))
 	<-doneChannel
 
-	value, ok := memTable.Get(mvcc2.NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	value, ok = memTable.Get(mvcc2.NewVersionedKey([]byte("isolation"), 2))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Snapshot"), value.ValueSlice())
+	assert.Equal(t, []byte("Snapshot"), valueWithVersion.ValueSlice())
 
-	value, ok = memTable.Get(mvcc2.NewVersionedKey([]byte("HDD"), 3))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 3))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk drive"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())
 
-	value, ok = memTable.Get(mvcc2.NewVersionedKey([]byte("isolation"), 3))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 3))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Serialized Snapshot"), value.ValueSlice())
+	assert.Equal(t, []byte("Serialized Snapshot"), valueWithVersion.ValueSlice())
 }
 
 func TestExecutesABatchAndStops(t *testing.T) {
-	memTable, _ := mvcc2.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	executor := NewTransactionExecutor(memTable)
@@ -110,11 +110,11 @@ func TestExecutesABatchAndStops(t *testing.T) {
 
 	executor.Stop()
 
-	value, ok := memTable.Get(mvcc2.NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := memTable.Get(mvcc.NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 
-	value, ok = memTable.Get(mvcc2.NewVersionedKey([]byte("isolation"), 2))
+	valueWithVersion, ok = memTable.Get(mvcc.NewVersionedKey([]byte("isolation"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Snapshot"), value.ValueSlice())
+	assert.Equal(t, []byte("Snapshot"), valueWithVersion.ValueSlice())
 }

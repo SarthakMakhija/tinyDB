@@ -39,9 +39,9 @@ func (memTable *MemTable) Delete(key VersionedKey) error {
 	return memTable.write(key, NewDeletedValue())
 }
 
-// Get returns a pair of (Value, bool) for the incoming key.
-// It returns (Value, true) if the value exists for the incoming key, else (nil, false).
-func (memTable *MemTable) Get(key VersionedKey) (Value, bool) {
+// Get returns a pair of (ValueWithVersion, bool) for the incoming key.
+// It returns (ValueWithVersion, true) if the value exists for the incoming key, else (nil, false).
+func (memTable *MemTable) Get(key VersionedKey) (ValueWithVersion, bool) {
 	return memTable.skiplist.get(key)
 }
 

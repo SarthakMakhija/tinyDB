@@ -31,9 +31,9 @@ func (skiplist *Skiplist) putOrUpdate(key VersionedKey, value Value) {
 	skiplist.size = skiplist.size + key.size() + value.size()
 }
 
-// Get returns a pair of (Value, bool) for the incoming key.
-// It returns (Value, true) if the value exists for the incoming key, else (nil, false).
-func (skiplist *Skiplist) get(key VersionedKey) (Value, bool) {
+// Get returns a pair of (ValueWithVersion, bool) for the incoming key.
+// It returns (ValueWithVersion, true) if the value exists for the incoming key, else (nil, false).
+func (skiplist *Skiplist) get(key VersionedKey) (ValueWithVersion, bool) {
 	skiplist.lock.RLock()
 	defer skiplist.lock.RUnlock()
 
@@ -95,18 +95,18 @@ func (node *SkiplistNode) putOrUpdate(key VersionedKey, value Value, levelGenera
 	return false
 }
 
-// get returns a pair of (Value, bool) for the incoming key.
-// It returns (Value, true) if the value exists for the incoming key, else (nil, false).
+// get returns a pair of (ValueWithVersion, bool) for the incoming key.
+// It returns (ValueWithVersion, true) if the value exists for the incoming key, else (nil, false).
 // get attempts to find the key where:
 // 1. the version of the key < version of the incoming key &&
 // 2. the key prefixes match.
 // KeyPrefix is the actual key or the byte slice.
-func (node *SkiplistNode) get(key VersionedKey) (Value, bool) {
+func (node *SkiplistNode) get(key VersionedKey) (ValueWithVersion, bool) {
 	node, ok := node.matchingNode(key)
 	if ok && !node.value.IsDeleted() {
-		return node.value, true
+		return NewValueWithVersion(node.value, node.key.version), true
 	}
-	return emptyValue(), false
+	return emptyValueWithZeroVersion(), false
 }
 
 func (node *SkiplistNode) matchingNode(key VersionedKey) (*SkiplistNode, bool) {
@@ -160,9 +160,9 @@ func (iterator *Iterator) key() VersionedKey {
 	return iterator.node.key
 }
 
-// value returns the value present in the current node pointed to by the Iterator
-func (iterator *Iterator) value() Value {
-	return iterator.node.value
+// value returns the ValueWithVersion present in the current node pointed to by the Iterator
+func (iterator *Iterator) value() ValueWithVersion {
+	return NewValueWithVersion(iterator.node.value, iterator.key().version)
 }
 
 // next moves the iterator forward. It is ESSENTIAL to call isValid() before calling next.

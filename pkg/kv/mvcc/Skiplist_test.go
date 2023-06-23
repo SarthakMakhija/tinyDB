@@ -13,9 +13,9 @@ func TestPutsAKeyValueAndGetByKeyInNode(t *testing.T) {
 
 	skiplist.putOrUpdate(key, value)
 
-	value, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 2))
+	valueWithVersion, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 2))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk"), valueWithVersion.ValueSlice())
 }
 
 func TestPutsADeletedKeyValueAndGetByKeyInNode(t *testing.T) {
@@ -36,9 +36,9 @@ func TestUpdatesTheSameKeyWithADifferentVersion(t *testing.T) {
 	skiplist.putOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
 	skiplist.putOrUpdate(NewVersionedKey([]byte("HDD"), 2), NewValue([]byte("Hard disk drive")))
 
-	value, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 3))
+	valueWithVersion, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 3))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk drive"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())
 }
 
 func TestGetsTheValueOfAKeyWithTheNearestVersion(t *testing.T) {
@@ -47,9 +47,9 @@ func TestGetsTheValueOfAKeyWithTheNearestVersion(t *testing.T) {
 	skiplist.putOrUpdate(NewVersionedKey([]byte("HDD"), 1), NewValue([]byte("Hard disk")))
 	skiplist.putOrUpdate(NewVersionedKey([]byte("HDD"), 2), NewValue([]byte("Hard disk drive")))
 
-	value, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 10))
+	valueWithVersion, ok := skiplist.get(NewVersionedKey([]byte("HDD"), 10))
 	assert.Equal(t, true, ok)
-	assert.Equal(t, []byte("Hard disk drive"), value.ValueSlice())
+	assert.Equal(t, []byte("Hard disk drive"), valueWithVersion.ValueSlice())
 }
 
 func TestGetsTheValueOfAKeyWithLatestVersion(t *testing.T) {
@@ -69,10 +69,10 @@ func TestGetsTheValueOfAKeyWithLatestVersion(t *testing.T) {
 
 	for version, expectedValue := range expected {
 		key := NewVersionedKey([]byte("SSD"), version)
-		value, ok := skiplist.get(key)
+		valueWithVersion, ok := skiplist.get(key)
 
 		assert.Equal(t, true, ok)
-		assert.Equal(t, expectedValue, value.ValueSlice())
+		assert.Equal(t, expectedValue, valueWithVersion.ValueSlice())
 	}
 }
 
