@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"testing"
 	"time"
-	"tinydb/pkg/kv/mvcc"
+	"tinydb/pkg/kv"
 	"tinydb/pkg/kv/option"
 )
 
@@ -14,10 +14,10 @@ func RandomWALFileId() uint64 {
 }
 
 func TestBeginTimestampMarkWithASingleTransaction(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
-	defer memTable.RemoveWAL()
+	workspace, _ := kv.NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
+	defer workspace.RemoveAllWAL()
 
-	oracle := NewOracle(NewTransactionExecutor(memTable))
+	oracle := NewOracle(NewTransactionExecutor(workspace))
 
 	beginMark := oracle.beginTimestampMark
 
@@ -35,10 +35,10 @@ func TestBeginTimestampMarkWithASingleTransaction(t *testing.T) {
 }
 
 func TestBeginTimestampMarkWithTwoTransactions(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
-	defer memTable.RemoveWAL()
+	workspace, _ := kv.NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
+	defer workspace.RemoveAllWAL()
 
-	oracle := NewOracle(NewTransactionExecutor(memTable))
+	oracle := NewOracle(NewTransactionExecutor(workspace))
 
 	beginMark := oracle.beginTimestampMark
 
@@ -60,10 +60,10 @@ func TestBeginTimestampMarkWithTwoTransactions(t *testing.T) {
 }
 
 func TestCleanUpOfCommittedTransactions(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
-	defer memTable.RemoveWAL()
+	workspace, _ := kv.NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
+	defer workspace.RemoveAllWAL()
 
-	oracle := NewOracle(NewTransactionExecutor(memTable))
+	oracle := NewOracle(NewTransactionExecutor(workspace))
 
 	beginMark := oracle.beginTimestampMark
 

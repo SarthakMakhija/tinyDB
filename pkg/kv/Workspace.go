@@ -9,6 +9,7 @@ import (
 // TODO: Check if we need any locks (during get), because put/delete will happen serially on the commit of a transaction;
 // TODO: but get can run concurrently.
 // Workspace is an abstraction that deals with active and all the immutable memtables.
+// This abstraction will be instantiated once in the lifetime of the entire appplication.
 type Workspace struct {
 	activeMemTable     *mvcc.MemTable
 	immutableMemTables []*mvcc.MemTable
@@ -106,8 +107,8 @@ func (workspace *Workspace) allMemtables() []*mvcc.MemTable {
 	return allMemtables
 }
 
-// removeAllWAL removes the WAL of all the memtables. It is ONLY used from tests.
-func (workspace *Workspace) removeAllWAL() {
+// RemoveAllWAL removes the WAL of all the memtables. It is ONLY used from tests.
+func (workspace *Workspace) RemoveAllWAL() {
 	workspace.activeMemTable.RemoveWAL()
 	for _, memtable := range workspace.immutableMemTables {
 		memtable.RemoveWAL()

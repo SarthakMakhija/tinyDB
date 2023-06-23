@@ -1,7 +1,8 @@
 package txn
 
 import (
-	mvcc "tinydb/pkg/kv/mvcc"
+	"tinydb/pkg/kv"
+	"tinydb/pkg/kv/mvcc"
 	"tinydb/pkg/kv/txn/errors"
 )
 
@@ -9,7 +10,7 @@ import (
 // A ReadonlyTransaction is assigned a beginTimestamp everytime it starts and can only perform a `get` operation.
 type ReadonlyTransaction struct {
 	beginTimestamp uint64
-	memtable       *mvcc.MemTable
+	workspace      *kv.Workspace
 	oracle         *Oracle
 }
 
@@ -22,7 +23,7 @@ type ReadWriteTransaction struct {
 	beginTimestamp uint64
 	batch          *Batch
 	reads          [][]byte
-	memtable       *mvcc.MemTable
+	workspace      *kv.Workspace
 	oracle         *Oracle
 }
 
@@ -31,7 +32,7 @@ func NewReadonlyTransaction(oracle *Oracle) *ReadonlyTransaction {
 	return &ReadonlyTransaction{
 		beginTimestamp: oracle.beginTimestamp(),
 		oracle:         oracle,
-		memtable:       oracle.transactionExecutor.memtable,
+		workspace:      oracle.transactionExecutor.workspace,
 	}
 }
 
@@ -41,15 +42,15 @@ func NewReadWriteTransaction(oracle *Oracle) *ReadWriteTransaction {
 		beginTimestamp: oracle.beginTimestamp(),
 		batch:          NewBatch(),
 		oracle:         oracle,
-		memtable:       oracle.transactionExecutor.memtable,
+		workspace:      oracle.transactionExecutor.workspace,
 	}
 }
 
-// Get performs a get operation from the mvcc.MemTable.
+// Get performs a get operation from the kv.Workspace.
 // It returns a pair  of (mvcc.ValueWithVersion and true) if the value exists for the key, (nil, false) otherwise.
 func (transaction *ReadonlyTransaction) Get(key []byte) (mvcc.ValueWithVersion, bool) {
 	versionedKey := mvcc.NewVersionedKey(key, transaction.beginTimestamp)
-	return transaction.memtable.Get(versionedKey)
+	return transaction.workspace.Get(versionedKey)
 }
 
 // FinishBeginTimestampForReadonlyTransaction indicates the end of ReadonlyTransaction.
@@ -59,7 +60,7 @@ func (transaction *ReadonlyTransaction) FinishBeginTimestampForReadonlyTransacti
 	transaction.oracle.finishBeginTimestampForReadonlyTransaction(transaction)
 }
 
-// Get performs a get operation from the mvcc.MemTable.
+// Get performs a get operation from the kv.Workspace.
 // It returns a pair  of (mvcc.ValueWithVersion and true) if the value exists for the key, (nil, false) otherwise.
 // Unlike the Get of ReadonlyTransaction, reads are tracked inside the Get of ReadWriteTransaction.
 func (transaction *ReadWriteTransaction) Get(key []byte) (mvcc.ValueWithVersion, bool) {
@@ -69,7 +70,7 @@ func (transaction *ReadWriteTransaction) Get(key []byte) (mvcc.ValueWithVersion,
 	transaction.reads = append(transaction.reads, key)
 
 	versionedKey := mvcc.NewVersionedKey(key, transaction.beginTimestamp)
-	return transaction.memtable.Get(versionedKey)
+	return transaction.workspace.Get(versionedKey)
 }
 
 // PutOrUpdate adds the key/value pair to the Batch inside ReadWriteTransaction.

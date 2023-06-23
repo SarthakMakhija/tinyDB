@@ -3,24 +3,24 @@ package txn
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"tinydb/pkg/kv/mvcc"
+	"tinydb/pkg/kv"
 	"tinydb/pkg/kv/option"
 	"tinydb/pkg/kv/txn/errors"
 )
 
 func TestGetsTheBeginTimestamp(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
-	defer memTable.RemoveWAL()
+	workspace, _ := kv.NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
+	defer workspace.RemoveAllWAL()
 
-	oracle := NewOracle(NewTransactionExecutor(memTable))
+	oracle := NewOracle(NewTransactionExecutor(workspace))
 	assert.Equal(t, uint64(0), oracle.beginTimestamp())
 }
 
 func TestGetsTheBeginTimestampAfterACommit(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
-	defer memTable.RemoveWAL()
+	workspace, _ := kv.NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
+	defer workspace.RemoveAllWAL()
 
-	oracle := NewOracle(NewTransactionExecutor(memTable))
+	oracle := NewOracle(NewTransactionExecutor(workspace))
 
 	transaction := NewReadWriteTransaction(oracle)
 	transaction.Get([]byte("HDD"))
@@ -33,10 +33,10 @@ func TestGetsTheBeginTimestampAfterACommit(t *testing.T) {
 }
 
 func TestGetsCommitTimestampForTransactionGivenNoTransactionsAreCurrentlyTracked(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
-	defer memTable.RemoveWAL()
+	workspace, _ := kv.NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
+	defer workspace.RemoveAllWAL()
 
-	oracle := NewOracle(NewTransactionExecutor(memTable))
+	oracle := NewOracle(NewTransactionExecutor(workspace))
 
 	transaction := NewReadWriteTransaction(oracle)
 	transaction.Get([]byte("HDD"))
@@ -46,10 +46,10 @@ func TestGetsCommitTimestampForTransactionGivenNoTransactionsAreCurrentlyTracked
 }
 
 func TestGetsCommitTimestampFor2Transactions(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
-	defer memTable.RemoveWAL()
+	workspace, _ := kv.NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
+	defer workspace.RemoveAllWAL()
 
-	oracle := NewOracle(NewTransactionExecutor(memTable))
+	oracle := NewOracle(NewTransactionExecutor(workspace))
 
 	aTransaction := NewReadWriteTransaction(oracle)
 	aTransaction.Get([]byte("HDD"))
@@ -69,10 +69,10 @@ func TestGetsCommitTimestampFor2Transactions(t *testing.T) {
 }
 
 func TestGetsCommitTimestampFor2TransactionsGivenOneTransactionReadTheKeyThatTheOtherWrites(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
-	defer memTable.RemoveWAL()
+	workspace, _ := kv.NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
+	defer workspace.RemoveAllWAL()
 
-	oracle := NewOracle(NewTransactionExecutor(memTable))
+	oracle := NewOracle(NewTransactionExecutor(workspace))
 
 	aTransaction := NewReadWriteTransaction(oracle)
 	_ = aTransaction.PutOrUpdate([]byte("HDD"), []byte("Hard disk"))
@@ -93,10 +93,10 @@ func TestGetsCommitTimestampFor2TransactionsGivenOneTransactionReadTheKeyThatThe
 }
 
 func TestErrorsForOneTransaction(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
-	defer memTable.RemoveWAL()
+	workspace, _ := kv.NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
+	defer workspace.RemoveAllWAL()
 
-	oracle := NewOracle(NewTransactionExecutor(memTable))
+	oracle := NewOracle(NewTransactionExecutor(workspace))
 
 	aTransaction := NewReadWriteTransaction(oracle)
 	_ = aTransaction.PutOrUpdate([]byte("HDD"), []byte("Hard disk"))
