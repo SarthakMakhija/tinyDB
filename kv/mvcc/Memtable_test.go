@@ -154,6 +154,18 @@ func TestMemtableIsFull(t *testing.T) {
 	assert.Equal(t, true, memTable.isFull())
 }
 
+func TestMemtableIsFullGivenWALIsFull(t *testing.T) {
+	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetMemtableSizeInBytes(25).SetDbDirectory("."))
+	defer memTable.RemoveWAL()
+
+	key := NewVersionedKey([]byte("HDD"), 1)
+	value := NewValue([]byte("Hard disk"))
+	_ = memTable.PutOrUpdate(key, value)
+
+	assert.Equal(t, uint64(21), memTable.skiplist.size)
+	assert.Equal(t, true, memTable.isFull())
+}
+
 func TestMemtableIsNotFull(t *testing.T) {
 	memTable, _ := NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetMemtableSizeInBytes(32).SetDbDirectory("."))
 	defer memTable.RemoveWAL()

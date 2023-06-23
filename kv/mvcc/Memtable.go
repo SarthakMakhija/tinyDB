@@ -64,6 +64,5 @@ func (memTable *MemTable) isFull() bool {
 	if memTable.skiplist.size >= memTable.options.MemtableSizeInBytes {
 		return true
 	}
-	//TODO: Check WAL Size
-	return false
+	return memTable.wal.CurrentWritableOffset() >= memTable.options.MemtableSizeInBytes
 }
