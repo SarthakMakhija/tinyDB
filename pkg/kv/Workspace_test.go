@@ -9,7 +9,7 @@ import (
 
 func TestWorkspacePutAndGet(t *testing.T) {
 	workspace, _ := NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
-	defer workspace.activeMemTable.RemoveWAL()
+	defer workspace.removeAllWAL()
 
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk")))
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 2), mvcc.NewValue([]byte("Hard disk drive")))
@@ -21,7 +21,7 @@ func TestWorkspacePutAndGet(t *testing.T) {
 
 func TestWorkspaceGetTheValueWithTheNearestVersion(t *testing.T) {
 	workspace, _ := NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
-	defer workspace.activeMemTable.RemoveWAL()
+	defer workspace.removeAllWAL()
 
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk")))
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 2), mvcc.NewValue([]byte("Hard disk drive")))
@@ -33,7 +33,7 @@ func TestWorkspaceGetTheValueWithTheNearestVersion(t *testing.T) {
 
 func TestWorkspaceGetANonExistingKey(t *testing.T) {
 	workspace, _ := NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
-	defer workspace.activeMemTable.RemoveWAL()
+	defer workspace.removeAllWAL()
 
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk")))
 
@@ -43,7 +43,7 @@ func TestWorkspaceGetANonExistingKey(t *testing.T) {
 
 func TestWorkspaceDeleteAndGetADeletedKey(t *testing.T) {
 	workspace, _ := NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
-	defer workspace.activeMemTable.RemoveWAL()
+	defer workspace.removeAllWAL()
 
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk")))
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 2), mvcc.NewValue([]byte("Hard disk drive")))
@@ -55,7 +55,7 @@ func TestWorkspaceDeleteAndGetADeletedKey(t *testing.T) {
 
 func TestWorkspaceDeleteAndGetAKeyWithADifferentVersion(t *testing.T) {
 	workspace, _ := NewWorkspace(option.DefaultOptions().SetDbDirectory("."))
-	defer workspace.activeMemTable.RemoveWAL()
+	defer workspace.removeAllWAL()
 
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk")))
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 2), mvcc.NewValue([]byte("Hard disk drive")))
@@ -68,7 +68,7 @@ func TestWorkspaceDeleteAndGetAKeyWithADifferentVersion(t *testing.T) {
 
 func TestMemtableFull(t *testing.T) {
 	workspace, _ := NewWorkspace(option.DefaultOptions().SetDbDirectory(".").SetMemtableSizeInBytes(20))
-	defer workspace.activeMemTable.RemoveWAL()
+	defer workspace.removeAllWAL()
 
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk drive")))
 
@@ -82,7 +82,7 @@ func TestMemtableFull(t *testing.T) {
 
 func TestWorkspaceGetAcrossAllTheMemtables(t *testing.T) {
 	workspace, _ := NewWorkspace(option.DefaultOptions().SetDbDirectory(".").SetMemtableSizeInBytes(20))
-	defer workspace.activeMemTable.RemoveWAL()
+	defer workspace.removeAllWAL()
 
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("HDD"), 1), mvcc.NewValue([]byte("Hard disk drive")))
 	_ = workspace.PutOrUpdate(mvcc.NewVersionedKey([]byte("SSD"), 1), mvcc.NewValue([]byte("Solid state drive")))

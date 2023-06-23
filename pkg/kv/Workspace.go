@@ -84,3 +84,10 @@ func (workspace *Workspace) allMemtables() []*mvcc.MemTable {
 
 	return allMemtables
 }
+
+func (workspace *Workspace) removeAllWAL() {
+	workspace.activeMemTable.RemoveWAL()
+	for _, memtable := range workspace.immutableMemTables {
+		memtable.RemoveWAL()
+	}
+}
