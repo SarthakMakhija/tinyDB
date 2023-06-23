@@ -22,7 +22,7 @@ func newSkiplist() *Skiplist {
 	}
 }
 
-// PutOrUpdate puts or updates the key and the value pair in the SkipList.
+// PutOrUpdate puts or updates the key and the value pair in the SkipList and increases the size of skiplist.
 func (skiplist *Skiplist) putOrUpdate(key VersionedKey, value Value) {
 	skiplist.lock.Lock()
 	defer skiplist.lock.Unlock()

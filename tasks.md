@@ -9,6 +9,7 @@
 
 ## Support for iterator
 - [X] Iterator for Skiplist
+  - [ ] Check if iterator can return a deleted key/value
 
 ## Prefix based get/seek
 ## Flush memtable to disk

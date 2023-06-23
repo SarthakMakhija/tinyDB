@@ -23,15 +23,9 @@ func NewMemTable(fileId uint64, options *kv.Options) (*MemTable, error) {
 	}, nil
 }
 
-// PutOrUpdate puts or updates the key and the value pair in the SkipList and the associated WA:.
+// PutOrUpdate puts or updates the key and the value pair in the associated WAL and the SkipList.
 func (memTable *MemTable) PutOrUpdate(key VersionedKey, value Value) error {
-	err := memTable.wal.Write(log.NewEntry(key.encode(), value.ValueSlice()))
-	if err != nil {
-		return err
-	}
-
-	memTable.skiplist.putOrUpdate(key, value)
-	return nil
+	return memTable.write(key, value)
 }
 
 // Delete deletes the key.
@@ -39,13 +33,7 @@ func (memTable *MemTable) PutOrUpdate(key VersionedKey, value Value) error {
 // Deletion involves: Creating a new Entry with a NewDeletedValue and appending the entry in the WAL.
 // The Key and the NewDeletedValue are added to the Skiplist.
 func (memTable *MemTable) Delete(key VersionedKey) error {
-	deletedValue := NewDeletedValue()
-	err := memTable.wal.Write(log.NewEntry(key.encode(), deletedValue.encode()))
-	if err != nil {
-		return err
-	}
-	memTable.skiplist.putOrUpdate(key, deletedValue)
-	return nil
+	return memTable.write(key, NewDeletedValue())
 }
 
 // Get returns a pair of (Value, bool) for the incoming key.
@@ -57,4 +45,14 @@ func (memTable *MemTable) Get(key VersionedKey) (Value, bool) {
 // RemoveWAL removes the WAL file.
 func (memTable *MemTable) RemoveWAL() {
 	memTable.wal.Remove()
+}
+
+// write to WAL and Skiplist.
+func (memTable *MemTable) write(key VersionedKey, value Value) error {
+	err := memTable.wal.Write(log.NewEntry(key.encode(), value.encode()))
+	if err != nil {
+		return err
+	}
+	memTable.skiplist.putOrUpdate(key, value)
+	return nil
 }
