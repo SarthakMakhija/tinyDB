@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"testing"
 	"time"
-	"tinydb/pkg/kv"
 	"tinydb/pkg/kv/mvcc"
+	"tinydb/pkg/kv/option"
 )
 
 func RandomWALFileId() uint64 {
@@ -14,7 +14,7 @@ func RandomWALFileId() uint64 {
 }
 
 func TestBeginTimestampMarkWithASingleTransaction(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -35,7 +35,7 @@ func TestBeginTimestampMarkWithASingleTransaction(t *testing.T) {
 }
 
 func TestBeginTimestampMarkWithTwoTransactions(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))
@@ -60,7 +60,7 @@ func TestBeginTimestampMarkWithTwoTransactions(t *testing.T) {
 }
 
 func TestCleanUpOfCommittedTransactions(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	oracle := NewOracle(NewTransactionExecutor(memTable))

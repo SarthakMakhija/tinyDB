@@ -26,8 +26,8 @@ func NewValueWithVersion(value Value, version uint64) ValueWithVersion {
 	}
 }
 
-// emptyValueWithNoVersion returns an empty value with zero Version
-func emptyValueWithZeroVersion() ValueWithVersion {
+// EmptyValueWithZeroVersion returns an empty value with zero Version
+func EmptyValueWithZeroVersion() ValueWithVersion {
 	return NewValueWithVersion(emptyValue(), 0)
 }
 

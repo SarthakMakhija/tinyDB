@@ -98,15 +98,15 @@ func (node *SkiplistNode) putOrUpdate(key VersionedKey, value Value, levelGenera
 // get returns a pair of (ValueWithVersion, bool) for the incoming key.
 // It returns (ValueWithVersion, true) if the value exists for the incoming key, else (nil, false).
 // get attempts to find the key where:
-// 1. the Version of the key < Version of the incoming key &&
+// 1. the Version of the key <= Version of the incoming key &&
 // 2. the key prefixes match.
 // KeyPrefix is the actual key or the byte slice.
 func (node *SkiplistNode) get(key VersionedKey) (ValueWithVersion, bool) {
 	node, ok := node.matchingNode(key)
 	if ok && !node.value.IsDeleted() {
-		return NewValueWithVersion(node.value, node.key.version), true
+		return NewValueWithVersion(node.value, node.key.Version), true
 	}
-	return emptyValueWithZeroVersion(), false
+	return EmptyValueWithZeroVersion(), false
 }
 
 func (node *SkiplistNode) matchingNode(key VersionedKey) (*SkiplistNode, bool) {
@@ -165,7 +165,7 @@ func (iterator *Iterator) key() VersionedKey {
 
 // value returns the ValueWithVersion present in the current node pointed to by the Iterator
 func (iterator *Iterator) value() ValueWithVersion {
-	return NewValueWithVersion(iterator.node.value, iterator.key().version)
+	return NewValueWithVersion(iterator.node.value, iterator.key().Version)
 }
 
 // next moves the iterator forward. It is ESSENTIAL to call isValid() before calling next.

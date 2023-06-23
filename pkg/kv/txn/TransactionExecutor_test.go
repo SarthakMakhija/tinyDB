@@ -3,12 +3,12 @@ package txn
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"tinydb/pkg/kv"
 	mvcc "tinydb/pkg/kv/mvcc"
+	"tinydb/pkg/kv/option"
 )
 
 func TestExecutesABatch(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	executor := NewTransactionExecutor(memTable)
@@ -31,7 +31,7 @@ func TestExecutesABatch(t *testing.T) {
 }
 
 func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	executor := NewTransactionExecutor(memTable)
@@ -55,7 +55,7 @@ func TestExecutesABatchAnInvokesCommitCallback(t *testing.T) {
 }
 
 func TestExecutes2Batches(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	executor := NewTransactionExecutor(memTable)
@@ -94,7 +94,7 @@ func TestExecutes2Batches(t *testing.T) {
 }
 
 func TestExecutesABatchAndStops(t *testing.T) {
-	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), kv.DefaultOptions().SetDbDirectory("."))
+	memTable, _ := mvcc.NewMemTable(RandomWALFileId(), option.DefaultOptions().SetDbDirectory("."))
 	defer memTable.RemoveWAL()
 
 	executor := NewTransactionExecutor(memTable)

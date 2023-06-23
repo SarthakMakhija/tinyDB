@@ -13,12 +13,12 @@ const versionSize = int(unsafe.Sizeof(uint64(0)))
 // Versioned key has a Version field that is the commitTimestamp of the key which is assigned by txn.Oracle.
 type VersionedKey struct {
 	key     []byte
-	version uint64
+	Version uint64
 }
 
 // NewVersionedKey creates a new instance of the VersionedKey
 func NewVersionedKey(key []byte, version uint64) VersionedKey {
-	return VersionedKey{key: key, version: version}
+	return VersionedKey{key: key, Version: version}
 }
 
 // emptyVersionedKey creates an empty VersionedKey.
@@ -32,14 +32,14 @@ func (versionedKey VersionedKey) getKey() []byte {
 	return versionedKey.key
 }
 
-// getVersion returns the version from the VersionedKey
+// getVersion returns the Version from the VersionedKey
 func (versionedKey VersionedKey) getVersion() uint64 {
-	return versionedKey.version
+	return versionedKey.Version
 }
 
 // compare the two VersionedKeys.
 // Two VersionedKeys are equal if their contents and the versions are same.
-// If two VersionedKeys are equal in their content, then their version is used to
+// If two VersionedKeys are equal in their content, then their Version is used to
 // get the comparison result.
 func (versionedKey VersionedKey) compare(other VersionedKey) int {
 	comparisonResult := bytes.Compare(versionedKey.getKey(), other.getKey())
@@ -70,17 +70,17 @@ func (versionedKey VersionedKey) asString() string {
 // Encoding scheme: [<Key>|<Version 8 bytes>] in a byte slice.
 func (versionedKey VersionedKey) encode() []byte {
 	encoded := make([]byte, len(versionedKey.key)+versionSize)
-	binary.LittleEndian.PutUint64(encoded[:], versionedKey.version)
+	binary.LittleEndian.PutUint64(encoded[:], versionedKey.Version)
 	copy(encoded[versionSize:], versionedKey.key)
 	return encoded
 }
 
-// decode the incoming byte slice and mutate the versionedKey with version and the key.
+// decode the incoming byte slice and mutate the versionedKey with Version and the key.
 func (versionedKey *VersionedKey) decode(part []byte) {
 	version := binary.LittleEndian.Uint64(part)
 	key := part[versionSize:]
 
-	versionedKey.version = version
+	versionedKey.Version = version
 	versionedKey.key = key
 }
 

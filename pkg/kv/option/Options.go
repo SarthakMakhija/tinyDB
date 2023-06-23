@@ -1,4 +1,4 @@
-package kv
+package option
 
 type Options struct {
 	DbDirectory         string

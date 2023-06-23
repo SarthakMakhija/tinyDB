@@ -1,20 +1,20 @@
 package mvcc
 
 import (
-	"tinydb/pkg/kv"
-	log "tinydb/pkg/kv/log"
+	"tinydb/pkg/kv/log"
+	"tinydb/pkg/kv/option"
 )
 
 // MemTable is an in-memory structure built on top of SkipList.
 type MemTable struct {
 	skiplist *Skiplist
 	wal      *log.WAL
-	options  *kv.Options
+	options  *option.Options
 }
 
 // NewMemTable creates a new instance of MemTable.
 // TODO: Validate options
-func NewMemTable(fileId uint64, options *kv.Options) (*MemTable, error) {
+func NewMemTable(fileId uint64, options *option.Options) (*MemTable, error) {
 	wal, err := log.NewWAL(fileId, options.DbDirectory)
 	if err != nil {
 		return nil, err
@@ -60,9 +60,9 @@ func (memTable *MemTable) write(key VersionedKey, value Value) error {
 	return nil
 }
 
-// isFull returns true of the size of the memtable is greater or equal to the maximum size of the MemTable.
-// isFull will check the size of the Skiplist and the CurrentWritableOffset of WAL to check if the MemTable is full.
-func (memTable *MemTable) isFull() bool {
+// IsFull returns true of the size of the memtable is greater or equal to the maximum size of the MemTable.
+// IsFull will check the size of the Skiplist and the CurrentWritableOffset of WAL to check if the MemTable is full.
+func (memTable *MemTable) IsFull() bool {
 	if memTable.skiplist.size >= memTable.options.MemtableSizeInBytes {
 		return true
 	}
