@@ -37,11 +37,11 @@ func (versionedKey VersionedKey) getVersion() uint64 {
 	return versionedKey.Version
 }
 
-// compare the two VersionedKeys.
+// Compare the two VersionedKeys.
 // Two VersionedKeys are equal if their contents and the versions are same.
 // If two VersionedKeys are equal in their content, then their Version is used to
 // get the comparison result.
-func (versionedKey VersionedKey) compare(other VersionedKey) int {
+func (versionedKey VersionedKey) Compare(other VersionedKey) int {
 	comparisonResult := bytes.Compare(versionedKey.getKey(), other.getKey())
 	if comparisonResult == 0 {
 		thisVersion, otherVersion := versionedKey.getVersion(), other.getVersion()
@@ -61,22 +61,22 @@ func (versionedKey VersionedKey) matchesKeyPrefix(key []byte) bool {
 	return bytes.Compare(versionedKey.getKey(), key) == 0
 }
 
-// asString returns the string of the key part.
-func (versionedKey VersionedKey) asString() string {
+// AsString returns the string of the key part.
+func (versionedKey VersionedKey) AsString() string {
 	return string(versionedKey.key)
 }
 
-// encode the VersionedKey
+// Encode the VersionedKey
 // Encoding scheme: [<Key>|<Version 8 bytes>] in a byte slice.
-func (versionedKey VersionedKey) encode() []byte {
+func (versionedKey VersionedKey) Encode() []byte {
 	encoded := make([]byte, len(versionedKey.key)+versionSize)
 	binary.LittleEndian.PutUint64(encoded[:], versionedKey.Version)
 	copy(encoded[versionSize:], versionedKey.key)
 	return encoded
 }
 
-// decode the incoming byte slice and mutate the versionedKey with Version and the key.
-func (versionedKey *VersionedKey) decode(part []byte) {
+// DecodeFrom the incoming byte slice and mutate the versionedKey with Version and the key.
+func (versionedKey *VersionedKey) DecodeFrom(part []byte) {
 	version := binary.LittleEndian.Uint64(part)
 	key := part[versionSize:]
 

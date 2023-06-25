@@ -74,7 +74,7 @@ func (node *SkiplistNode) putOrUpdate(key VersionedKey, value Value, levelGenera
 	positions := make([]*SkiplistNode, len(node.forwards))
 
 	for level := len(node.forwards) - 1; level >= 0; level-- {
-		for current.forwards[level] != nil && current.forwards[level].key.compare(key) < 0 {
+		for current.forwards[level] != nil && current.forwards[level].key.Compare(key) < 0 {
 			current = current.forwards[level]
 		}
 		positions[level] = current
@@ -83,7 +83,7 @@ func (node *SkiplistNode) putOrUpdate(key VersionedKey, value Value, levelGenera
 	current = current.forwards[0]
 
 	//same Version of the key must not be present
-	if current == nil || current.key.compare(key) != 0 {
+	if current == nil || current.key.Compare(key) != 0 {
 		newLevel := levelGenerator.Generate()
 		newNode := newSkiplistNode(key, value, newLevel)
 		for level := uint8(0); level < newLevel; level++ {
@@ -113,7 +113,7 @@ func (node *SkiplistNode) matchingNode(key VersionedKey) (*SkiplistNode, bool) {
 	current := node
 	lastNodeWithTheKey := current
 	for level := len(node.forwards) - 1; level >= 0; level-- {
-		for current.forwards[level] != nil && current.forwards[level].key.compare(key) < 0 {
+		for current.forwards[level] != nil && current.forwards[level].key.Compare(key) < 0 {
 			current = current.forwards[level]
 			lastNodeWithTheKey = current
 		}
@@ -143,11 +143,11 @@ func (iterator *Iterator) seek(key VersionedKey) {
 
 	current := iterator.node
 	for level := len(iterator.node.forwards) - 1; level >= 0; level-- {
-		for current.forwards[level] != nil && current.forwards[level].key.compare(key) <= 0 {
+		for current.forwards[level] != nil && current.forwards[level].key.Compare(key) <= 0 {
 			current = current.forwards[level]
 		}
 	}
-	if current.key.compare(key) < 0 {
+	if current.key.Compare(key) < 0 {
 		current = current.forwards[0]
 	}
 	iterator.node = current

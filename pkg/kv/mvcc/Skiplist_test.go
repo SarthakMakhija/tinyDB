@@ -99,7 +99,7 @@ func TestIteratorSeekWithMatchingKey(t *testing.T) {
 
 	assert.True(t, iterator.isValid())
 	assert.Equal(t, uint64(2), iterator.value().Version)
-	assert.Equal(t, "SSD", iterator.key().asString())
+	assert.Equal(t, "SSD", iterator.key().AsString())
 	assert.Equal(t, "Solid state", string(iterator.value().ValueSlice()))
 }
 
@@ -113,7 +113,7 @@ func TestIteratorSeekWithKeyGreaterThanTheExistingKey(t *testing.T) {
 	iterator.seek(NewVersionedKey([]byte("SSD"), 1))
 
 	assert.True(t, iterator.isValid())
-	assert.Equal(t, "SSD", iterator.key().asString())
+	assert.Equal(t, "SSD", iterator.key().AsString())
 	assert.Equal(t, "Solid state", string(iterator.value().ValueSlice()))
 }
 
@@ -129,7 +129,7 @@ func TestIteratorSeekWithKeyDifferentThanKeyPrefix(t *testing.T) {
 
 	assert.True(t, iterator.isValid())
 	assert.Equal(t, uint64(1), iterator.value().Version)
-	assert.Equal(t, "HDD", iterator.key().asString())
+	assert.Equal(t, "HDD", iterator.key().AsString())
 	assert.Equal(t, "Hard disk", string(iterator.value().ValueSlice()))
 }
 
@@ -144,12 +144,12 @@ func TestIteratorNext(t *testing.T) {
 	iterator.seek(NewVersionedKey([]byte("DB"), 2))
 
 	assert.True(t, iterator.isValid())
-	assert.Equal(t, "HDD", iterator.key().asString())
+	assert.Equal(t, "HDD", iterator.key().AsString())
 	assert.Equal(t, "Hard disk", string(iterator.value().ValueSlice()))
 
 	iterator.next()
 	assert.True(t, iterator.isValid())
-	assert.Equal(t, "SSD", iterator.key().asString())
+	assert.Equal(t, "SSD", iterator.key().AsString())
 	assert.Equal(t, "Solid state", string(iterator.value().ValueSlice()))
 
 	iterator.next()

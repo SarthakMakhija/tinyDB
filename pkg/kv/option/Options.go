@@ -1,13 +1,15 @@
 package option
 
 type Options struct {
-	DbDirectory         string
-	MemtableSizeInBytes uint64
+	DbDirectory             string
+	MemtableSizeInBytes     uint64
+	SSTableBlockSizeInBytes uint32
 }
 
 func DefaultOptions() *Options {
 	return &Options{
-		MemtableSizeInBytes: 32 * 1024 * 1024,
+		MemtableSizeInBytes:     32 * 1024 * 1024,
+		SSTableBlockSizeInBytes: 4096,
 	}
 }
 

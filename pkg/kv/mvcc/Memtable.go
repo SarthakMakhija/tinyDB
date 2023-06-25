@@ -52,7 +52,7 @@ func (memTable *MemTable) RemoveWAL() {
 
 // write to WAL and Skiplist.
 func (memTable *MemTable) write(key VersionedKey, value Value) error {
-	err := memTable.wal.Write(log.NewEntry(key.encode(), value.encode()))
+	err := memTable.wal.Write(log.NewEntry(key.Encode(), value.Encode()))
 	if err != nil {
 		return err
 	}

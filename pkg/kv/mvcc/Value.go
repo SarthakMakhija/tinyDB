@@ -62,8 +62,9 @@ func (value Value) IsDeleted() bool {
 	return value.deleted&0x01 == 0x01
 }
 
-// IsDeleted returns true if the value is deleted, false otherwise
-func (value Value) encode() []byte {
+// Encode the value to a byte slice.
+// Encoding scheme: [<Value>|<1 byte for the deleted flag>] in a byte slice.
+func (value Value) Encode() []byte {
 	encoded := make([]byte, len(value.ValueSlice())+1)
 	copy(encoded[:1], []byte{value.deleted})
 	copy(encoded[1:], value.value)
@@ -71,8 +72,8 @@ func (value Value) encode() []byte {
 	return encoded
 }
 
-// decodeFrom sets the deleted and value from the byte slice
-func (value *Value) decodeFrom(part []byte) {
+// DecodeFrom sets the deleted and value from the byte slice
+func (value *Value) DecodeFrom(part []byte) {
 	value.deleted = part[0]
 	value.value = part[1:]
 }

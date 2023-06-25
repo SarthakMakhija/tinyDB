@@ -13,10 +13,10 @@ func TestNonDeletedValue(t *testing.T) {
 
 func TestNonDeletedEncodedValue(t *testing.T) {
 	value := NewValue([]byte("Hard disk"))
-	encoded := value.encode()
+	encoded := value.Encode()
 
 	decodedValue := new(Value)
-	decodedValue.decodeFrom(encoded)
+	decodedValue.DecodeFrom(encoded)
 
 	assert.Equal(t, false, decodedValue.IsDeleted())
 	assert.Equal(t, "Hard disk", string(decodedValue.ValueSlice()))
@@ -30,10 +30,10 @@ func TestDeletedValue(t *testing.T) {
 
 func TestDeletedEncodedValue(t *testing.T) {
 	value := NewDeletedValue()
-	encoded := value.encode()
+	encoded := value.Encode()
 
 	decodedValue := new(Value)
-	decodedValue.decodeFrom(encoded)
+	decodedValue.DecodeFrom(encoded)
 
 	assert.Equal(t, true, decodedValue.IsDeleted())
 	assert.Equal(t, "", string(decodedValue.ValueSlice()))
