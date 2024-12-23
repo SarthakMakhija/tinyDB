@@ -1,4 +1,4 @@
-# tinyDB (WIP: Dropped)
+# tinyDB (WIP -> Dropped)
 Tiny relational DB implementation over an LSM tree based storage engine. I am not working on this anymore. The project has moved to [gorel](https://github.com/SarthakMakhija/gorel).
 
 # Idea
