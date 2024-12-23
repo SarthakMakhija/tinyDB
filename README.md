@@ -1,7 +1,5 @@
-# tinyDB (WIP)
-[![Go](https://github.com/SarthakMakhija/tinyDB/actions/workflows/build.yml/badge.svg)](https://github.com/SarthakMakhija/tinyDB/actions/workflows/build.yml)
-
-Tiny relational DB implementation over an LSM tree based storage engine
+# tinyDB (WIP: Dropped)
+Tiny relational DB implementation over an LSM tree based storage engine. I am not working on this anymore. The project has moved to [gorel](https://github.com/SarthakMakhija/gorel).
 
 # Idea
 
